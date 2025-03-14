@@ -7,6 +7,7 @@ export interface ItemType {
     is_sold: boolean;
     created_at: string;
     category: number;
+    category_name: string;
     seller: number;
     is_favorite: boolean; // this is a separate field on the frontend for each user
 }

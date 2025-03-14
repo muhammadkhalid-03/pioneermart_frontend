@@ -45,7 +45,7 @@ const HomeScreen = () => {
   //this will run every time favoriteIds changes i.e when a new id is added or removed
   useEffect(() => {
     if (items.length > 0 && favoriteIds.length >= 0) {
-      updateItemsWithFavoriteStatus(); //TODO
+      updateItemsWithFavoriteStatus();
     }
   }, [favoriteIds]);
 
