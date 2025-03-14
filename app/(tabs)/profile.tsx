@@ -99,8 +99,8 @@ const ProfileScreen = ({ user }: Props) => {
       });
 
       if (response.data && response.data.length > 0) {
-        setUserData(response.data[0]);
-        console.log("User Data:", response.data[0]);
+        // setUserData(response.data[0]);
+        console.log("UserProfile:", response.data[0]);
       } else {
         console.error("No user data found in the response.");
         Alert.alert("Error", "No user data found.");
@@ -108,6 +108,31 @@ const ProfileScreen = ({ user }: Props) => {
     } catch (error) {
       console.error("Error getting user profile:", error);
       Alert.alert("Error", "Failed to load profile. Please try again.");
+    }
+  };
+
+  const getUserItems = async () => {
+    try {
+      const cleanToken = authToken?.trim();
+      const URL = `http://127.0.0.1:8000/api/items/my_items/`;
+      const response = await axios.get(URL, {
+        headers: {
+          Authorization: `Bearer ${cleanToken}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      });
+
+      if (response.data && response.data.length > 0) {
+        setUserData(response.data);
+        console.log("User Items:", response.data);
+      } else {
+        console.error("No user data found in the response.");
+        Alert.alert("Error", "No user items found.");
+      }
+    } catch (error) {
+      console.error("Error getting user items:", error);
+      Alert.alert("Error", "Failed to get user items. Please try again.");
     }
   };
 
@@ -178,7 +203,8 @@ const ProfileScreen = ({ user }: Props) => {
         {/* My Items */}
         <TouchableOpacity
           style={styles.infoItem}
-          onPress={() => router.push("/additionalinfo/MyItems")}
+          onPress={() => getUserItems()}
+          // onPress={() => router.push("/additionalinfo/MyItems")}
         >
           <View style={styles.infoItemLeft}>
             <Foundation name="shopping-bag" size={22} color="#555" />
