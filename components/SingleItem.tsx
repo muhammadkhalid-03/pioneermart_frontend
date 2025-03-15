@@ -24,7 +24,6 @@ const SingleItem = ({ item, onFavoriteToggle }: Props) => {
   const { isFavorite } = useFavorites();
   const route = useRoute();
 
-  //   const [isFavorite, setIsFavorite] = useState(item.is_favorite || false); // state for favorite status
   const handleItemPress = () => {
     console.log("hello");
     router.push({
@@ -37,7 +36,6 @@ const SingleItem = ({ item, onFavoriteToggle }: Props) => {
     event: GestureResponderEvent,
     itemId: number
   ) => {
-    // event.stopPropagation();
     if (onFavoriteToggle) {
       onFavoriteToggle(itemId);
     }
@@ -49,16 +47,18 @@ const SingleItem = ({ item, onFavoriteToggle }: Props) => {
     >
       <View style={styles.container}>
         <Image source={{ uri: item.image }} style={styles.itemImage} />
-        <TouchableOpacity
-          style={styles.favBtn}
-          onPress={(event) => handleFavoritePress(event, item.id)}
-        >
-          <AntDesign
-            name={isFavorite(item.id) ? "heart" : "hearto"}
-            size={22}
-            color="black"
-          />
-        </TouchableOpacity>
+        {route.name !== "additionalinfo/MyItems" ? (
+          <TouchableOpacity
+            style={styles.favBtn}
+            onPress={(event) => handleFavoritePress(event, item.id)}
+          >
+            <AntDesign
+              name={isFavorite(item.id) ? "heart" : "hearto"}
+              size={22}
+              color="black"
+            />
+          </TouchableOpacity>
+        ) : null}
         {route.name === "ItemDetails" ? null : (
           <Text style={styles.title}>${item.price}</Text>
         )}
