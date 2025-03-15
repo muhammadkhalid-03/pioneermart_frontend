@@ -14,6 +14,9 @@ const MyItems = () => {
   const [items, setItems] = useState<ItemType[]>([]);
   const [filteredItems, setFilteredItems] = useState<ItemType[]>([]);
   const [categories, setCategories] = useState<CategoryType[]>([]);
+  const [mySelectedCategory, setMySelectedCategory] = useState<number | null>(
+    null
+  ); // local state instead of shared context from SearchContext
 
   const { authToken } = useAuth(); //auth context
 
@@ -21,7 +24,6 @@ const MyItems = () => {
     searchQuery,
     filteredResults,
     isLoading,
-    toggleCategory,
     clearCategories,
     selectedCategory,
     setSelectedCategory,
@@ -45,15 +47,15 @@ const MyItems = () => {
 
   //this will run whenever items or selectedCategory is changed. It essentually just filters by category right now
   useEffect(() => {
-    if (selectedCategory === null) {
+    if (mySelectedCategory === null) {
       setFilteredItems(items);
     } else {
       const filtered = items.filter(
-        (item) => Number(item.category) === Number(selectedCategory)
+        (item) => Number(item.category) === Number(mySelectedCategory)
       );
       setFilteredItems(filtered);
     }
-  }, [items, selectedCategory]);
+  }, [items, mySelectedCategory]);
 
   function processCategoryData(data: ItemType[]): CategoryType[] {
     const categoryMap: { [key: number]: CategoryType } = {}; // Use a map to avoid duplicates
@@ -96,11 +98,11 @@ const MyItems = () => {
   };
 
   const handleCategorySelect = (categoryId: number | null) => {
-    setSelectedCategory(categoryId);
+    setMySelectedCategory(categoryId);
     if (categoryId === null) {
       clearCategories();
     } else {
-      toggleCategory(categoryId);
+      setMySelectedCategory(categoryId);
     }
   };
   return (
@@ -113,7 +115,7 @@ const MyItems = () => {
       />
       <Categories
         categories={categories}
-        selectedCategory={selectedCategory}
+        selectedCategory={mySelectedCategory}
         onSelectCategory={handleCategorySelect}
       />
       <ProductList items={itemsToDisplay} isLoading={isLoading} />
