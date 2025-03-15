@@ -12,7 +12,7 @@ const SearchBar: React.FC = () => {
   };
   return (
     <View>
-      <TouchableOpacity style={styles.searchBar}>
+      <TouchableOpacity style={styles.searchBarContainer}>
         <TextInput
           style={styles.searchTxt}
           placeholder="Search items..."
@@ -20,29 +20,38 @@ const SearchBar: React.FC = () => {
           onChangeText={setQuery}
           onSubmitEditing={handleSearch}
         />
-        <EvilIcons
-          name="search"
-          size={20}
-          onPress={handleSearch}
-          color="black"
-        />
+        <TouchableOpacity style={styles.searchIcon}>
+          <EvilIcons
+            name="search"
+            size={24}
+            onPress={handleSearch}
+            color="black"
+          />
+        </TouchableOpacity>
       </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  searchBar: {
-    flex: 1,
+  searchBarContainer: {
+    width: "90%",
+    alignSelf: "center",
     backgroundColor: "#D3D3D3",
-    paddingVertical: 4,
     paddingHorizontal: 10,
     flexDirection: "row",
     justifyContent: "center",
     borderRadius: 15,
+    alignItems: "center",
+    marginTop: 20,
   },
   searchTxt: {
+    flex: 1,
+    paddingVertical: 8,
     color: "black",
+  },
+  searchIcon: {
+    padding: 5,
   },
 });
 
