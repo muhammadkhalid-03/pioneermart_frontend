@@ -4,6 +4,7 @@ import { TextInput, TouchableOpacity, Text, View, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
 import { useAuth } from "./contexts/AuthContext";
+import { BASE_URL } from "@/config";
 
 const OtpScreen = () => {
   const { email } = useLocalSearchParams();
@@ -12,10 +13,10 @@ const OtpScreen = () => {
 
   const verifyOtp = async () => {
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/otpauth/verify-otp/",
-        { email, otp }
-      );
+      const response = await axios.post(`${BASE_URL}/api/otpauth/verify-otp/`, {
+        email,
+        otp,
+      });
       const { access, refresh } = response.data;
       if (access && refresh) {
         await AsyncStorage.setItem("authToken", access);

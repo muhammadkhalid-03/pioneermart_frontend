@@ -2,6 +2,7 @@ import { ItemType } from "@/types/types";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
 import axios from "axios";
+import { BASE_URL } from "@/config";
 
 type SearchContextType = {
   searchQuery: string;
@@ -35,18 +36,15 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       // calling the search_items endpoint to perform a search query on the backend of items
       const cleanToken = authToken?.trim();
-      const response = await axios.get(
-        `http://127.0.0.1:8000/api/items/search_items/`,
-        {
-          headers: {
-            Authorization: `Bearer ${cleanToken}`,
-            "Content-Type": "application/json",
-          },
-          params: {
-            q: query,
-          },
-        }
-      );
+      const response = await axios.get(`${BASE_URL}/api/items/search_items/`, {
+        headers: {
+          Authorization: `Bearer ${cleanToken}`,
+          "Content-Type": "application/json",
+        },
+        params: {
+          q: query,
+        },
+      });
       setSearchResults(response.data); // setting searchresults properly
       applyFilters(response.data); // apply existing category filters
     } catch (error) {

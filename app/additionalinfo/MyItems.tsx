@@ -8,6 +8,7 @@ import { Alert } from "react-native";
 import { useAuth } from "../contexts/AuthContext";
 import { useSearch } from "../contexts/SearchContext";
 import axios from "axios";
+import { BASE_URL } from "@/config";
 
 const MyItems = () => {
   const [items, setItems] = useState<ItemType[]>([]);
@@ -72,7 +73,7 @@ const MyItems = () => {
   const getUserItems = async () => {
     try {
       const cleanToken = authToken?.trim();
-      const URL = `http://127.0.0.1:8000/api/items/my_items/`; // get users posted items
+      const URL = `${BASE_URL}/api/items/my_items/`; // get users posted items
       const response = await axios.get(URL, {
         headers: {
           Authorization: `Bearer ${cleanToken}`,

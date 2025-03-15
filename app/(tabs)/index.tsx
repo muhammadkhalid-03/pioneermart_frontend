@@ -8,6 +8,7 @@ import Categories from "@/components/Categories";
 import { useAuth } from "../contexts/AuthContext";
 import { useFavorites } from "../contexts/FavoritesContext";
 import { useSearch } from "../contexts/SearchContext";
+import { BASE_URL } from "@/config";
 
 const HomeScreen = () => {
   const [items, setItems] = useState<ItemType[]>([]);
@@ -79,7 +80,7 @@ const HomeScreen = () => {
   const getProducts = async () => {
     try {
       const cleanToken = authToken?.trim();
-      const URL = `http://127.0.0.1:8000/api/items/`;
+      const URL = `${BASE_URL}/api/items/`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: `Bearer ${cleanToken}`,
@@ -104,7 +105,7 @@ const HomeScreen = () => {
   const getCategories = async () => {
     try {
       const cleanToken = authToken?.trim();
-      const URL = `http://127.0.0.1:8000/api/categories/`;
+      const URL = `${BASE_URL}/api/categories/`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: `Bearer ${cleanToken}`,

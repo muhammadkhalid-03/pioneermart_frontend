@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { ItemType } from "@/types/types";
 import { useAuth } from "./AuthContext";
+import { BASE_URL } from "@/config";
 type FavoritesContextType = {
   favoriteIds: number[];
   favoriteItems: ItemType[];
@@ -26,7 +27,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({
   const refreshFavorites = async () => {
     try {
       const cleanToken = authToken?.trim();
-      const URL = `http://127.0.0.1:8000/api/items/favorites/`;
+      const URL = `${BASE_URL}/api/items/favorites/`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: `Bearer ${cleanToken}`,
@@ -50,7 +51,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({
   const toggleFavorite = async (itemId: number) => {
     try {
       const cleanToken = authToken?.trim();
-      const URL = `http://127.0.0.1:8000/api/items/${itemId}/toggle_favorite/`;
+      const URL = `${BASE_URL}/api/items/${itemId}/toggle_favorite/`;
       await axios.post(
         URL,
         {},

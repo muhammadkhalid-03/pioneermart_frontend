@@ -8,6 +8,7 @@ import { Stack } from "expo-router";
 import Header from "@/components/Header";
 import { useAuth } from "../contexts/AuthContext";
 import { useFavorites } from "../contexts/FavoritesContext";
+import { BASE_URL } from "@/config";
 type Props = {};
 const FavoritesScreen = () => {
   const [categories, setCategories] = useState<CategoryType[]>([]); // creates an array items with ItemType objects defined in types/types.tsx interface
@@ -52,7 +53,7 @@ const FavoritesScreen = () => {
   const getFavoritesCategories = async () => {
     try {
       const cleanToken = authToken?.trim();
-      const URL = `http://127.0.0.1:8000/api/items/favorites_categories/`;
+      const URL = `${BASE_URL}/api/items/favorites_categories/`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: `Bearer ${cleanToken}`,

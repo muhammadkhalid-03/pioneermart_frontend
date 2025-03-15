@@ -5,6 +5,7 @@ import { router, Stack } from "expo-router";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 import InputField from "@/components/inputField";
 import axios from "axios";
+import { BASE_URL } from "@/config";
 
 type Props = {};
 
@@ -13,7 +14,7 @@ const SignUpScreen = (props: Props) => {
 
   const requestOTP = async () => {
     try {
-      const OTP_URL = `http://127.0.0.1:8000/api/otpauth/request-otp/`;
+      const OTP_URL = `${BASE_URL}/api/otpauth/request-otp/`;
       await axios.post(
         OTP_URL,
         {

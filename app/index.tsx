@@ -20,11 +20,11 @@ const WelcomeScreen = (props: Props) => {
               <Text>Go to SignUp Screen</Text>
             </TouchableOpacity>
           </Link>
-          <Link href={"/(tabs)" as any} asChild>
+          {/* <Link href={"/(tabs)" as any} asChild>
             <TouchableOpacity>
               <Text>Go to Tabs Index</Text>
             </TouchableOpacity>
-          </Link>
+          </Link> */}
         </View>
       </View>
     </>

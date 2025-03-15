@@ -19,6 +19,7 @@ import axios from "axios";
 import { usePathname, useRouter } from "expo-router";
 import { ScrollView } from "react-native";
 import DangerModal from "@/components/DangerModal";
+import { BASE_URL } from "@/config";
 const { width } = Dimensions.get("window");
 
 type Props = {
@@ -88,7 +89,7 @@ const ProfileScreen = ({ user }: Props) => {
   const getProfile = async () => {
     try {
       const cleanToken = authToken?.trim();
-      const URL = `http://127.0.0.1:8000/api/users/`;
+      const URL = `${BASE_URL}/api/users/`;
       const response = await axios.get(URL, {
         headers: {
           Authorization: `Bearer ${cleanToken}`,
