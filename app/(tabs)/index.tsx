@@ -131,23 +131,13 @@ const HomeScreen = () => {
   // handle favorite toggle using the context
   const handleFavoriteToggle = async (itemId: number) => {
     await toggleFavorite(itemId);
-
-    // The UI will update automatically via the useEffect that watches favoriteIds
   };
-
-  const displayItems =
-    filteredResults && filteredResults.length > 0
-      ? filteredResults.map((item) => ({
-          ...item,
-          is_favorite: isFavorite(item.id),
-        }))
-      : items;
 
   // Add this useEffect to mark search results with favorite status
   useEffect(() => {
     if (filteredResults && filteredResults.length > 0) {
       // Update the search results with favorite status
-      const updatedSearchResults = filteredResults.map((item) => ({
+      filteredResults.map((item) => ({
         ...item,
         is_favorite: isFavorite(item.id),
       }));

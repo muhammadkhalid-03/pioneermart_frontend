@@ -10,27 +10,21 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="home-outline" size={22} color={color} />
-          ),
+          tabBarIcon: () => <Ionicons name="home-outline" size={22} />,
         }}
       />
       <Tabs.Screen
         name="notifications"
         options={{
           title: "Notification",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="notifications-outline" size={22} color={color} />
-          ),
+          tabBarIcon: () => <Ionicons name="notifications-outline" size={22} />,
         }}
       />
       <Tabs.Screen
         name="additem"
         options={{
           title: "Add Item",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="add" size={24} color="black" />
-          ),
+          tabBarIcon: () => <Ionicons name="add" size={24} color="black" />,
         }}
       />
       <Tabs.Screen
@@ -38,18 +32,14 @@ export default function TabLayout() {
         options={{
           title: "Favorites",
           tabBarBadge: 3,
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="favorite-outline" size={22} color={color} />
-          ),
+          tabBarIcon: () => <MaterialIcons name="favorite-outline" size={22} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="person-outline" size={22} color={color} />
-          ),
+          tabBarIcon: () => <Ionicons name="person-outline" size={22} />,
         }}
       />
     </Tabs>

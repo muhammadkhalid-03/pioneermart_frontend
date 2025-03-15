@@ -13,12 +13,7 @@ const ItemPurchaseModal: React.FC<ItemPurchaseModalProps> = ({
   email,
 }) => {
   return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={isVisible}
-      // onRequestClose={onClose}
-    >
+    <Modal animationType="slide" transparent={true} visible={isVisible}>
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Text style={styles.modalText}>
@@ -41,7 +36,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    //   backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
   },
   modalView: {
     margin: 20,

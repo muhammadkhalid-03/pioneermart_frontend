@@ -4,8 +4,7 @@ import ProductList from "@/components/ProductList";
 import { CategoryType, ItemType } from "@/types/types";
 import { Stack } from "expo-router";
 import { useEffect, useState } from "react";
-import { View, Text, Alert } from "react-native";
-import { useFavorites } from "../contexts/FavoritesContext";
+import { Alert } from "react-native";
 import { useAuth } from "../contexts/AuthContext";
 import { useSearch } from "../contexts/SearchContext";
 import axios from "axios";
@@ -16,7 +15,6 @@ const MyItems = () => {
   const [categories, setCategories] = useState<CategoryType[]>([]);
 
   const { authToken } = useAuth(); //auth context
-  const { favoriteIds, toggleFavorite, isFavorite } = useFavorites(); //favorites context
 
   const {
     searchQuery,
@@ -85,9 +83,7 @@ const MyItems = () => {
 
       if (response.data && response.data.length > 0) {
         setItems(response.data);
-        console.log("\n\nUser Items:", response.data);
         setCategories(processCategoryData(response.data));
-        console.log("\n\nCategories:", categories);
       } else {
         console.error("No user data found in the response.");
         Alert.alert("Error", "No user items found.");
@@ -102,7 +98,6 @@ const MyItems = () => {
     setSelectedCategory(categoryId);
     if (categoryId === null) {
       clearCategories();
-      console.log("\n\nSelected category:", selectedCategory);
     } else {
       toggleCategory(categoryId);
     }
@@ -120,11 +115,7 @@ const MyItems = () => {
         selectedCategory={selectedCategory}
         onSelectCategory={handleCategorySelect}
       />
-      <ProductList
-        items={itemsToDisplay}
-        isLoading={isLoading}
-        // onFavoriteToggle={handleFavoriteToggle}
-      />
+      <ProductList items={itemsToDisplay} isLoading={isLoading} />
     </>
   );
 };

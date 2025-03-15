@@ -32,10 +32,7 @@ const SingleItem = ({ item, onFavoriteToggle }: Props) => {
     });
   };
 
-  const handleFavoritePress = async (
-    event: GestureResponderEvent,
-    itemId: number
-  ) => {
+  const handleFavoritePress = async (itemId: number) => {
     if (onFavoriteToggle) {
       onFavoriteToggle(itemId);
     }
@@ -50,7 +47,7 @@ const SingleItem = ({ item, onFavoriteToggle }: Props) => {
         {route.name !== "additionalinfo/MyItems" ? (
           <TouchableOpacity
             style={styles.favBtn}
-            onPress={(event) => handleFavoritePress(event, item.id)}
+            onPress={() => handleFavoritePress(item.id)}
           >
             <AntDesign
               name={isFavorite(item.id) ? "heart" : "hearto"}

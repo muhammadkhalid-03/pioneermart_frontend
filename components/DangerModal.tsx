@@ -1,5 +1,3 @@
-import { MaterialIcons } from "@expo/vector-icons";
-import React, { useState } from "react";
 import { View, Text, Modal, TouchableOpacity, StyleSheet } from "react-native";
 
 interface DangerModalProps {
@@ -48,7 +46,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    //   backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
   },
   modalView: {
     margin: 20,

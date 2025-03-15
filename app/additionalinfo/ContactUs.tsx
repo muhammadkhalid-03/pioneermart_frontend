@@ -32,14 +32,10 @@ const styles = StyleSheet.create({
     flex: 1, //container takes up whole screen
     marginHorizontal: 20,
     marginVertical: 12,
-
-    // alignItems: "center",
   },
   headerContainer: {
     flexDirection: "row",
     alignItems: "center", //align items vertically in the center
-    // flex: 1,
-    // justifyContent: "center",
     marginTop: 30,
   },
   backBtn: {
@@ -53,8 +49,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     textAlign: "center",
-    // justifyContent: "center",
-    // marginBottom: 20,
   },
   contentContainer: {
     flex: 1, //take up remaining space

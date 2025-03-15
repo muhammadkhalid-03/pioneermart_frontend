@@ -1,14 +1,7 @@
-import {
-  Alert,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useState } from "react";
 import Entypo from "@expo/vector-icons/Entypo";
-import { Link, router, Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 import InputField from "@/components/inputField";
 import axios from "axios";
@@ -21,7 +14,7 @@ const SignUpScreen = (props: Props) => {
   const requestOTP = async () => {
     try {
       const OTP_URL = `http://127.0.0.1:8000/api/otpauth/request-otp/`;
-      const response = await axios.post(
+      await axios.post(
         OTP_URL,
         {
           // response for future error checking

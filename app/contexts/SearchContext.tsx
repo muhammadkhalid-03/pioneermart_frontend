@@ -1,7 +1,7 @@
-import { CategoryType, ItemType } from "@/types/types";
+import { ItemType } from "@/types/types";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 
 type SearchContextType = {
   searchQuery: string;

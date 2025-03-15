@@ -1,7 +1,6 @@
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import { Link, Stack } from "expo-router";
 import React from "react";
-import { AuthProvider } from "./contexts/AuthContext";
 
 type Props = {};
 

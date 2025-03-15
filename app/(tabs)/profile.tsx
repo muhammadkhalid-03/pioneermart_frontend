@@ -1,5 +1,4 @@
 import {
-  Button,
   Dimensions,
   StyleSheet,
   Text,
@@ -9,7 +8,7 @@ import {
   Alert,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
-import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import { UserInfo } from "@/types/types";
 import { MaterialIcons } from "@expo/vector-icons";
 import Foundation from "@expo/vector-icons/Foundation";
@@ -99,7 +98,6 @@ const ProfileScreen = ({ user }: Props) => {
       });
 
       if (response.data && response.data.length > 0) {
-        // setUserData(response.data[0]);
         console.log("UserProfile:", response.data[0]);
       } else {
         console.error("No user data found in the response.");

@@ -91,7 +91,6 @@ export const useFavorites = () => {
   }
   return context;
 };
-// export const useAuth = () => useContext(AuthContext);
 export default function FavoritesContextComponent() {
   return <></>; //satisfy the requirement for a component with empty fragment
 }

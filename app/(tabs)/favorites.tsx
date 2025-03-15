@@ -10,7 +10,6 @@ import { useAuth } from "../contexts/AuthContext";
 import { useFavorites } from "../contexts/FavoritesContext";
 type Props = {};
 const FavoritesScreen = () => {
-  // const [favorites, setFavorites] = useState<ItemType[]>([]);
   const [categories, setCategories] = useState<CategoryType[]>([]); // creates an array items with ItemType objects defined in types/types.tsx interface
   const [isLoading, setIsLoading] = useState<boolean>(true); // isLoading state for animation while getting data
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
@@ -30,7 +29,6 @@ const FavoritesScreen = () => {
       setIsLoading(false);
     };
     fetchData();
-    // setIsLoading(false);
   }, []);
 
   useEffect(() => {
@@ -71,7 +69,6 @@ const FavoritesScreen = () => {
   const handleFavoriteToggle = async (itemId: number) => {
     // Store the item's category before removing it
     const itemToRemove = favoriteItems.find((item) => item.id === itemId);
-    const categoryOfRemovedItem = itemToRemove?.category;
     await toggleFavorite(itemId);
     // Refresh categories after toggling the favorite
     // This ensures we have the latest data

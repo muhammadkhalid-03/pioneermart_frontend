@@ -7,22 +7,19 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import Entypo from "@expo/vector-icons/Entypo";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ItemPurchaseModal from "@/components/ItemPurchaseModal";
 import SingleItem from "@/components/SingleItem";
 import { useFavorites } from "./contexts/FavoritesContext";
-// import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const width = Dimensions.get("window").width; // -40 b/c marginHorizontal in index.tsx is 20 so we need to reduce the width by 20x2
 
 const ItemDetails = () => {
-  //   const insets = useSafeAreaInsets();
   const { item: itemString } = useLocalSearchParams(); // access the item parameter as a string
   const item = JSON.parse(itemString as string); // turn into JSON object for details page
-  const { favoriteIds, toggleFavorite, isFavorite } = useFavorites(); //favorites context
+  const { toggleFavorite } = useFavorites(); //favorites context
 
   const [isVisible, setIsVisible] = useState(false);
 
@@ -112,9 +109,4 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "black",
   },
-  // itemInfo: {
-  //     fontSize: 16,
-  //     fontWeight: "700",
-  //     color: "black",
-  // },
 });
