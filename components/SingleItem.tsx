@@ -6,7 +6,6 @@ import {
   Image,
   StyleSheet,
   TouchableOpacity,
-  GestureResponderEvent,
 } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { router } from "expo-router";
@@ -27,7 +26,6 @@ const SingleItem = ({ item }: Props) => {
   const { authToken } = useAuth();
 
   const handleItemPress = () => {
-    console.log("hello");
     router.push({
       pathname: "/ItemDetails",
       params: { item: JSON.stringify(item) },
@@ -46,7 +44,7 @@ const SingleItem = ({ item }: Props) => {
             onPress={() => toggleFavorite(item.id, authToken || "")}
           >
             <AntDesign
-              name={item.is_favorite ? "heart" : "hearto"}
+              name={item.is_favorited ? "heart" : "hearto"}
               size={22}
               color="black"
             />
@@ -67,7 +65,6 @@ export default SingleItem;
 
 const styles = StyleSheet.create({
   container: {
-    // width: width / 2 - 10, // need the / 2 - 10 part to show both images otherwise it covers up the one on the right
     width: (width - 20) / 2, // Ensure spacing works correctly
     marginHorizontal: 5, // Add margin for spacing
   },

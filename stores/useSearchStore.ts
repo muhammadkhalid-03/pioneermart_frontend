@@ -165,7 +165,6 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
       } else if (screenId === "myItems") {
         endpoint = "api/items/search_my_items/";
       }
-      // TODO: not sure if this is right
       console.log("This is the endpoint:", endpoint);
       const response = await axios.get(`${BASE_URL}/${endpoint}`, {
         headers: {
@@ -294,7 +293,9 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
       //update both home and favorites screens
       //first update home screen items
       const homeScreenItems = get().screens.home.items.map((item) =>
-        item.id === itemId ? { ...item, is_favorite: !item.is_favorite } : item
+        item.id === itemId
+          ? { ...item, is_favorited: !item.is_favorited }
+          : item
       );
 
       //update home screen state
