@@ -1,9 +1,7 @@
-import { ItemType } from "@/types/types";
 import {
   Dimensions,
   View,
   Text,
-  Image,
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
@@ -12,14 +10,14 @@ import Entypo from "@expo/vector-icons/Entypo";
 import { useState } from "react";
 import ItemPurchaseModal from "@/components/ItemPurchaseModal";
 import SingleItem from "@/components/SingleItem";
-import { useFavorites } from "./contexts/FavoritesContext";
+import { useRoute } from "@react-navigation/native";
 
 const width = Dimensions.get("window").width; // -40 b/c marginHorizontal in index.tsx is 20 so we need to reduce the width by 20x2
 
 const ItemDetails = () => {
+  const route = useRoute();
   const { item: itemString } = useLocalSearchParams(); // access the item parameter as a string
   const item = JSON.parse(itemString as string); // turn into JSON object for details page
-  const { toggleFavorite } = useFavorites(); //favorites context
 
   const [isVisible, setIsVisible] = useState(false);
 
@@ -33,12 +31,6 @@ const ItemDetails = () => {
     setIsVisible(false);
   };
 
-  // handle favorite toggle using the context
-  const handleFavoriteToggle = async (itemId: number) => {
-    await toggleFavorite(itemId);
-
-    // The UI will update automatically via the useEffect that watches favoriteIds
-  };
   return (
     <>
       <Stack.Screen
@@ -62,7 +54,7 @@ const ItemDetails = () => {
           onClose={closeModal}
           email={item.seller_name}
         />
-        <SingleItem item={item} onFavoriteToggle={handleFavoriteToggle} />
+        <SingleItem item={item} />
         <Text style={styles.title}>Price: ${item.price}</Text>
         <Text style={styles.title}>Name: {item.title}</Text>
         <Text style={styles.title}>Description: {item.description}</Text>

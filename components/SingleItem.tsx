@@ -12,20 +12,25 @@ import { router } from "expo-router";
 import { useRoute } from "@react-navigation/native";
 import { useItemsStore } from "@/stores/useSearchStore";
 import { useAuth } from "@/app/contexts/AuthContext";
+import useSingleItemStore from "@/stores/singleItemStore";
 
 type Props = {
   item: ItemType;
+  source?: string;
 };
 
 const width = Dimensions.get("window").width - 40; // -40 b/c marginHorizontal in index.tsx is 20 so we need to reduce the width by 20x2
 
-const SingleItem = ({ item }: Props) => {
-  // const { isFavorite } = useFavorites();
+const SingleItem = ({ item, source }: Props) => {
   const route = useRoute();
   const { toggleFavorite } = useItemsStore();
   const { authToken } = useAuth();
+  const { showFavoritesIcon, setShowFavoritesIcon } = useSingleItemStore();
 
   const handleItemPress = () => {
+    if (source === "myItems") {
+      setShowFavoritesIcon(false);
+    }
     router.push({
       pathname: "/ItemDetails",
       params: { item: JSON.stringify(item) },
@@ -38,7 +43,7 @@ const SingleItem = ({ item }: Props) => {
     >
       <View style={styles.container}>
         <Image source={{ uri: item.image }} style={styles.itemImage} />
-        {route.name !== "additionalinfo/MyItems" ? (
+        {showFavoritesIcon && (
           <TouchableOpacity
             style={styles.favBtn}
             onPress={() => toggleFavorite(item.id, authToken || "")}
@@ -49,7 +54,7 @@ const SingleItem = ({ item }: Props) => {
               color="black"
             />
           </TouchableOpacity>
-        ) : null}
+        )}
         {route.name === "ItemDetails" ? null : (
           <Text style={styles.title}>${item.price}</Text>
         )}

@@ -15,11 +15,14 @@ import { useItemsStore } from "@/stores/useSearchStore";
 type ProductListProps = {
   items: ItemType[] | null;
   isLoading?: boolean;
+  source?: string; //tracks which page is rendering this list for favorite icon purpose
 };
 
-const ProductList = ({ items, isLoading = false }: ProductListProps) => {
-  const { toggleFavorite } = useItemsStore();
-  const { authToken } = useAuth();
+const ProductList = ({
+  items,
+  isLoading = false,
+  source,
+}: ProductListProps) => {
   const route = useRoute();
 
   if (isLoading) {
@@ -46,7 +49,7 @@ const ProductList = ({ items, isLoading = false }: ProductListProps) => {
       </Text>
       <FlatList
         data={items}
-        renderItem={({ item }) => <SingleItem item={item} />}
+        renderItem={({ item }) => <SingleItem item={item} source={source} />}
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
         contentContainerStyle={styles.listContent}
