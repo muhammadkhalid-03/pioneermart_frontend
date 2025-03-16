@@ -1,23 +1,43 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { TextInput, View, StyleSheet, TouchableOpacity } from "react-native";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
-import { useSearch } from "../app/contexts/SearchContext";
+import { useAuth } from "@/app/contexts/AuthContext";
+import { useItemsStore } from "@/stores/useSearchStore";
 
-const SearchBar: React.FC = () => {
-  const [query, setQuery] = useState("");
-  const { performSearch } = useSearch();
+type SearchBarProps = {
+  screenId: "home" | "favorites" | "myItems";
+};
+
+const SearchBar: React.FC<SearchBarProps> = ({ screenId }) => {
+  const [localQuery, setLocalQuery] = useState("");
+  const authToken = useAuth();
+  const { screens, performSearch, clearSearch } = useItemsStore();
+
+  const { searchQuery } = screens[screenId]; //get the current screen's search query
 
   const handleSearch = () => {
-    performSearch(query);
+    performSearch(screenId, localQuery, authToken || null);
   };
+
+  // TODO: add icon to search bar to clear...check on claude
+  const handleClear = () => {
+    setLocalQuery("");
+    clearSearch(screenId);
+  };
+
+  //keep local state in sync with global state
+  useEffect(() => {
+    setLocalQuery(searchQuery);
+  }, [searchQuery]);
+
   return (
     <View>
       <TouchableOpacity style={styles.searchBarContainer}>
         <TextInput
           style={styles.searchTxt}
           placeholder="Search items..."
-          value={query}
-          onChangeText={setQuery}
+          value={localQuery}
+          onChangeText={setLocalQuery}
           onSubmitEditing={handleSearch}
         />
         <TouchableOpacity style={styles.searchIcon}>

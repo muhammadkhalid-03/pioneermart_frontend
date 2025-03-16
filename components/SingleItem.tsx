@@ -6,36 +6,30 @@ import {
   Image,
   StyleSheet,
   TouchableOpacity,
-  GestureResponderEvent,
 } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { router } from "expo-router";
-import { useFavorites } from "@/app/contexts/FavoritesContext";
 import { useRoute } from "@react-navigation/native";
+import { useItemsStore } from "@/stores/useSearchStore";
+import { useAuth } from "@/app/contexts/AuthContext";
 
 type Props = {
   item: ItemType;
-  onFavoriteToggle?: (itemId: number) => void; // New callback prop
 };
 
 const width = Dimensions.get("window").width - 40; // -40 b/c marginHorizontal in index.tsx is 20 so we need to reduce the width by 20x2
 
-const SingleItem = ({ item, onFavoriteToggle }: Props) => {
-  const { isFavorite } = useFavorites();
+const SingleItem = ({ item }: Props) => {
+  // const { isFavorite } = useFavorites();
   const route = useRoute();
+  const { toggleFavorite } = useItemsStore();
+  const { authToken } = useAuth();
 
   const handleItemPress = () => {
-    console.log("hello");
     router.push({
       pathname: "/ItemDetails",
       params: { item: JSON.stringify(item) },
     });
-  };
-
-  const handleFavoritePress = async (itemId: number) => {
-    if (onFavoriteToggle) {
-      onFavoriteToggle(itemId);
-    }
   };
 
   return (
@@ -47,10 +41,10 @@ const SingleItem = ({ item, onFavoriteToggle }: Props) => {
         {route.name !== "additionalinfo/MyItems" ? (
           <TouchableOpacity
             style={styles.favBtn}
-            onPress={() => handleFavoritePress(item.id)}
+            onPress={() => toggleFavorite(item.id, authToken || "")}
           >
             <AntDesign
-              name={isFavorite(item.id) ? "heart" : "hearto"}
+              name={item.is_favorited ? "heart" : "hearto"}
               size={22}
               color="black"
             />
@@ -71,7 +65,6 @@ export default SingleItem;
 
 const styles = StyleSheet.create({
   container: {
-    // width: width / 2 - 10, // need the / 2 - 10 part to show both images otherwise it covers up the one on the right
     width: (width - 20) / 2, // Ensure spacing works correctly
     marginHorizontal: 5, // Add margin for spacing
   },
@@ -95,9 +88,4 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "black",
   },
-  // itemInfo: {
-  //     fontSize: 16,
-  //     fontWeight: "700",
-  //     color: "black",
-  // },
 });

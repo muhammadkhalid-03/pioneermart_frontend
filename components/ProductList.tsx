@@ -10,18 +10,15 @@ import { ItemType } from "@/types/types";
 import SingleItem from "./SingleItem";
 import { useRoute } from "@react-navigation/native";
 import { useAuth } from "@/app/contexts/AuthContext";
+import { useItemsStore } from "@/stores/useSearchStore";
 
 type ProductListProps = {
   items: ItemType[] | null;
   isLoading?: boolean;
-  onFavoriteToggle?: (itemId: number) => void; //callback prop for favorite action on frontend
 };
 
-const ProductList = ({
-  items,
-  isLoading = false,
-  onFavoriteToggle,
-}: ProductListProps) => {
+const ProductList = ({ items, isLoading = false }: ProductListProps) => {
+  const { toggleFavorite } = useItemsStore();
   const { authToken } = useAuth();
   const route = useRoute();
 
@@ -49,9 +46,7 @@ const ProductList = ({
       </Text>
       <FlatList
         data={items}
-        renderItem={({ item }) => (
-          <SingleItem item={item} onFavoriteToggle={onFavoriteToggle} />
-        )}
+        renderItem={({ item }) => <SingleItem item={item} />}
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
         contentContainerStyle={styles.listContent}

@@ -1,103 +1,41 @@
-import { Alert, StyleSheet, Text, View } from "react-native";
 import React, { useEffect, useState } from "react";
-import { CategoryType, ItemType } from "@/types/types";
-import axios from "axios";
 import ProductList from "@/components/ProductList";
 import Categories from "@/components/Categories";
 import { Stack } from "expo-router";
 import Header from "@/components/Header";
 import { useAuth } from "../contexts/AuthContext";
-import { useFavorites } from "../contexts/FavoritesContext";
-import { BASE_URL } from "@/config";
-type Props = {};
+import { useItemsStore } from "@/stores/useSearchStore";
+
 const FavoritesScreen = () => {
-  const [categories, setCategories] = useState<CategoryType[]>([]); // creates an array items with ItemType objects defined in types/types.tsx interface
-  const [isLoading, setIsLoading] = useState<boolean>(true); // isLoading state for animation while getting data
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [filteredItems, setFilteredItems] = useState<ItemType[]>([]); // state for filtered items
+  const {
+    screens,
+    setActiveScreen,
+    loadItems,
+    loadCategories,
+    categories,
+    toggleFavorite,
+  } = useItemsStore();
   const { authToken } = useAuth();
-  const { favoriteItems, toggleFavorite, refreshFavorites } = useFavorites();
-  // currently just telling us new token if it changes kinda useless rn
+
+  const screenId = "favorites"; // current screen state
+  const { filteredItems, searchQuery, isLoading } = screens[screenId];
+
   useEffect(() => {
-    if (authToken) {
-    }
+    setActiveScreen(screenId);
+    loadItems(screenId, authToken || "");
+    loadCategories(authToken || "");
   }, [authToken]);
-  // fetch all categories and favorites when component mounts...will only run once
-  useEffect(() => {
-    const fetchData = async () => {
-      await refreshFavorites();
-      await getFavoritesCategories();
-      setIsLoading(false);
-    };
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    getFavoritesCategories();
-  }, [favoriteItems]);
-
-  // update filtered favorites when favorites or selectedCategory changes
-  useEffect(() => {
-    if (selectedCategory === null) {
-      // if no category is selected, show all items
-      setFilteredItems(favoriteItems);
-    } else {
-      // filter favorites by the selected category id
-      const filtered = favoriteItems.filter(
-        (item) => Number(item.category) === Number(selectedCategory)
-      );
-      setFilteredItems(filtered);
-    }
-  }, [favoriteItems, selectedCategory]);
-  // get all the favorites item categories
-  const getFavoritesCategories = async () => {
-    try {
-      const cleanToken = authToken?.trim();
-      const URL = `${BASE_URL}/api/items/favorites_categories/`;
-      const response = await axios.get(URL, {
-        headers: {
-          Authorization: `Bearer ${cleanToken}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      });
-      setCategories(response.data);
-    } catch (error) {
-      console.log("Error getting favorites categories...", error);
-    }
-  };
-  // handle favorite toggle button click
-  const handleFavoriteToggle = async (itemId: number) => {
-    // Store the item's category before removing it
-    const itemToRemove = favoriteItems.find((item) => item.id === itemId);
-    await toggleFavorite(itemId);
-    // Refresh categories after toggling the favorite
-    // This ensures we have the latest data
-    await getFavoritesCategories();
-  };
-  // handle category selection
-  const handleCategorySelect = (categoryId: number | null) => {
-    setSelectedCategory(categoryId);
-  };
 
   return (
     <>
       <Stack.Screen
         options={{
           headerShown: true,
-          header: () => <Header />,
+          header: () => <Header screenId={screenId} />,
         }}
       />
-      <Categories
-        categories={categories}
-        selectedCategory={selectedCategory}
-        onSelectCategory={handleCategorySelect}
-      />
-      <ProductList
-        items={filteredItems}
-        isLoading={isLoading}
-        onFavoriteToggle={handleFavoriteToggle}
-      />
+      <Categories screenId={screenId} categories={categories} />
+      <ProductList items={filteredItems} isLoading={isLoading} />
     </>
   );
 };

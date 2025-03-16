@@ -4,121 +4,160 @@ import ProductList from "@/components/ProductList";
 import { CategoryType, ItemType } from "@/types/types";
 import { Stack } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert } from "react-native";
-import { useAuth } from "../contexts/AuthContext";
+import { ActivityIndicator, Alert } from "react-native";
+import AuthContextComponent, { useAuth } from "../contexts/AuthContext";
 import { useSearch } from "../contexts/SearchContext";
 import axios from "axios";
 import { BASE_URL } from "@/config";
+import { useItemsStore } from "@/stores/useSearchStore";
+// import { useSearchStore } from "@/stores/useSearchStore";
+import { StyleSheet } from "react-native";
 
 const MyItems = () => {
   const [items, setItems] = useState<ItemType[]>([]);
-  const [filteredItems, setFilteredItems] = useState<ItemType[]>([]);
-  const [categories, setCategories] = useState<CategoryType[]>([]);
+  // const [filteredItems, setFilteredItems] = useState<ItemType[]>([]);
+  // const [categories, setCategories] = useState<CategoryType[]>([]);
   const [mySelectedCategory, setMySelectedCategory] = useState<number | null>(
     null
   ); // local state instead of shared context from SearchContext
 
   const { authToken } = useAuth(); //auth context
-
   const {
-    searchQuery,
-    filteredResults,
-    isLoading,
-    clearCategories,
-    selectedCategory,
-    setSelectedCategory,
-  } = useSearch(); // search context
+    screens,
+    setActiveScreen,
+    loadItems,
+    loadCategories,
+    categories,
+    activeScreen,
+  } = useItemsStore();
+  // const {
+  //   filteredResults,
+  //   isLoading,
+  //   selectedCategory,
+  //   categories,
+  //   searchQuery,
+  //   toggleCategory,
+  //   loadInitialItems,
+  //   activeScreen,
+  // } = useSearchStore();
 
-  // Decide which items to show:
-  const itemsToDisplay = searchQuery !== "" ? filteredResults : filteredItems;
+  //current screen state
+  const screenId = "myItems";
+  const { filteredItems, searchQuery, isLoading } = screens[screenId];
 
-  //this will run every time authToken changes
   useEffect(() => {
-    if (authToken) {
-      console.log("Token has been updated:", authToken);
-    }
-  }, [authToken]); // dependency for authToken changes
+    setActiveScreen(screenId);
+    loadItems(screenId, authToken || "");
+    loadCategories(authToken || "");
+    return () => {}; //cleanup when navigating away
+  }, [authToken]);
 
-  //this will run ONLY once when the component initially mounts
-  useEffect(() => {
-    // getCategories();
-    getUserItems();
-  }, []);
+  // const {
+  //   // searchQuery,
+  //   // filteredResults,
+  //   // isLoading,
+  //   clearCategories,
+  //   selectedCategory,
+  //   setSelectedCategory,
+  // } = useSearch(); // search context
 
-  //this will run whenever items or selectedCategory is changed. It essentually just filters by category right now
-  useEffect(() => {
-    if (mySelectedCategory === null) {
-      setFilteredItems(items);
-    } else {
-      const filtered = items.filter(
-        (item) => Number(item.category) === Number(mySelectedCategory)
-      );
-      setFilteredItems(filtered);
-    }
-  }, [items, mySelectedCategory]);
+  // // Decide which items to show:
+  // const itemsToDisplay = searchQuery !== "" ? filteredResults : filteredItems;
 
-  function processCategoryData(data: ItemType[]): CategoryType[] {
-    const categoryMap: { [key: number]: CategoryType } = {}; // Use a map to avoid duplicates
+  // //this will run every time authToken changes
+  // useEffect(() => {
+  //   if (authToken) {
+  //     console.log("Token has been updated:", authToken);
+  //   }
+  // }, [authToken]); // dependency for authToken changes
 
-    data.forEach((item) => {
-      const categoryId = item.category;
-      const categoryName = item.category_name;
+  // //this will run ONLY once when the component initially mounts
+  // useEffect(() => {
+  //   // getCategories();
+  //   getUserItems();
+  // }, []);
 
-      if (!categoryMap[categoryId]) {
-        categoryMap[categoryId] = { id: categoryId, name: categoryName };
-      }
-    });
+  // //this will run whenever items or selectedCategory is changed. It essentually just filters by category right now
+  // useEffect(() => {
+  //   if (mySelectedCategory === null) {
+  //     setFilteredItems(items);
+  //   } else {
+  //     const filtered = items.filter(
+  //       (item) => Number(item.category) === Number(mySelectedCategory)
+  //     );
+  //     setFilteredItems(filtered);
+  //   }
+  // }, [items, mySelectedCategory]);
 
-    return Object.values(categoryMap);
-  }
+  // function processCategoryData(data: ItemType[]): CategoryType[] {
+  //   const categoryMap: { [key: number]: CategoryType } = {}; // Use a map to avoid duplicates
 
-  const getUserItems = async () => {
-    try {
-      const cleanToken = authToken?.trim();
-      const URL = `${BASE_URL}/api/items/my_items/`; // get users posted items
-      const response = await axios.get(URL, {
-        headers: {
-          Authorization: `Bearer ${cleanToken}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      });
+  //   data.forEach((item) => {
+  //     const categoryId = item.category;
+  //     const categoryName = item.category_name;
 
-      if (response.data && response.data.length > 0) {
-        setItems(response.data);
-        setCategories(processCategoryData(response.data));
-      } else {
-        console.error("No user data found in the response.");
-        Alert.alert("Error", "No user items found.");
-      }
-    } catch (error) {
-      console.error("Error getting user items:", error);
-      Alert.alert("Error", "Failed to get user items. Please try again.");
-    }
-  };
+  //     if (!categoryMap[categoryId]) {
+  //       categoryMap[categoryId] = { id: categoryId, name: categoryName };
+  //     }
+  //   });
 
-  const handleCategorySelect = (categoryId: number | null) => {
-    setMySelectedCategory(categoryId);
-    if (categoryId === null) {
-      clearCategories();
-    } else {
-      setMySelectedCategory(categoryId);
-    }
-  };
+  //   return Object.values(categoryMap);
+  // }
+
+  // const getUserItems = async () => {
+  //   try {
+  //     const cleanToken = authToken?.trim();
+  //     const URL = `${BASE_URL}/api/items/my_items/`; // get users posted items
+  //     const response = await axios.get(URL, {
+  //       headers: {
+  //         Authorization: `Bearer ${cleanToken}`,
+  //         "Content-Type": "application/json",
+  //         Accept: "application/json",
+  //       },
+  //     });
+
+  //     if (response.data && response.data.length > 0) {
+  //       setItems(response.data);
+  //       setCategories(processCategoryData(response.data));
+  //     } else {
+  //       console.error("No user data found in the response.");
+  //       Alert.alert("Error", "No user items found.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error getting user items:", error);
+  //     Alert.alert("Error", "Failed to get user items. Please try again.");
+  //   }
+  // };
+
+  // const handleCategorySelect = (categoryId: number | null) => {
+  //   setMySelectedCategory(categoryId);
+  //   if (categoryId === null) {
+  //     clearCategories();
+  //   } else {
+  //     setMySelectedCategory(categoryId);
+  //   }
+  // };
   return (
     <>
       <Stack.Screen
         options={{
           headerShown: true,
-          header: () => <Header />,
+          header: () => <Header screenId={screenId} />,
         }}
       />
-      <Categories
-        categories={categories}
-        selectedCategory={mySelectedCategory}
-        onSelectCategory={handleCategorySelect}
-      />
-      <ProductList items={itemsToDisplay} isLoading={isLoading} />
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#007AFF" />
+      ) : (
+        <>
+          <Categories
+            screenId={screenId}
+            categories={categories}
+            // selectedCategory={selectedCategory}
+            // onSelectCategory={toggleCategory}
+          />
+          <ProductList items={filteredItems} isLoading={isLoading} />
+        </>
+      )}
     </>
   );
 };
