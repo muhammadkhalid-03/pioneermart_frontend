@@ -23,6 +23,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const storedToken = await AsyncStorage.getItem("authToken");
         if (storedToken) {
           setAuthToken(storedToken);
+          setIsAuthenticated(true); //ensure auth state updates
         }
       } catch (error) {
         console.error("Failed to load auth token", error);
@@ -31,12 +32,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     loadToken();
   }, []);
 
+  const handleSetAuthToken = (token: string | null) => {
+    setAuthToken(token);
+    setIsAuthenticated(!!token);
+  };
+
   const onLogout = async () => {
     try {
       await AsyncStorage.removeItem("authToken");
-      setAuthToken(null);
-      setIsAuthenticated(false);
-      router.replace("/signup");
+      handleSetAuthToken(null);
+      // setIsAuthenticated(false);
+      router.replace("/");
       console.log("User logged out");
     } catch (error) {
       console.error("Failed to log out", error);

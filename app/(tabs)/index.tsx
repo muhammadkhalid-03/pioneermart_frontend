@@ -1,14 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Stack } from "expo-router";
-import { CategoryType, ItemType } from "@/types/types";
-import axios from "axios";
 import Header from "@/components/Header";
 import ProductList from "@/components/ProductList";
 import Categories from "@/components/Categories";
 import { useAuth } from "../contexts/AuthContext";
-import { useFavorites } from "../contexts/FavoritesContext";
-import { useSearch } from "../contexts/SearchContext";
-import { BASE_URL } from "@/config";
 import { useItemsStore } from "@/stores/useSearchStore";
 
 const HomeScreen = () => {

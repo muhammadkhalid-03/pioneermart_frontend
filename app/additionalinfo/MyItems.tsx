@@ -1,11 +1,12 @@
 import Categories from "@/components/Categories";
 import Header from "@/components/Header";
 import ProductList from "@/components/ProductList";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import { useEffect } from "react";
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, TouchableOpacity } from "react-native";
 import { useAuth } from "../contexts/AuthContext";
 import { useItemsStore } from "@/stores/useSearchStore";
+import { Entypo } from "@expo/vector-icons";
 
 const MyItems = () => {
   const { authToken } = useAuth(); //auth context
@@ -28,6 +29,14 @@ const MyItems = () => {
       <Stack.Screen
         options={{
           headerShown: true,
+          headerLeft: () => (
+            <TouchableOpacity
+              style={{ padding: 8 }}
+              onPress={() => router.back()}
+            >
+              <Entypo name="chevron-left" size={24} color="black" />
+            </TouchableOpacity>
+          ),
           header: () => <Header screenId={screenId} />,
         }}
       />

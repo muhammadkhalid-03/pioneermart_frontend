@@ -1,5 +1,4 @@
 import {
-  Dimensions,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -16,11 +15,11 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import CameraModal from "@/components/CameraModal";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
-import { usePathname, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { ScrollView } from "react-native";
 import DangerModal from "@/components/DangerModal";
 import { BASE_URL } from "@/config";
-const { width } = Dimensions.get("window");
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = {
   user: UserInfo;
@@ -28,20 +27,16 @@ type Props = {
 
 const ProfileScreen = ({ user }: Props) => {
   const [permission, requestPermission] = useCameraPermissions();
-  const [userData, setUserData] = useState<UserInfo>({
-    email: "username@grinnell.edu",
-    id: 0,
-  });
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const insets = useSafeAreaInsets();
+  const [userData, setUserData] = useState<UserInfo>();
+  const [profileImage, setProfileImage] = useState<string | null>(null); //TODO: Implement camera feature to upload items
+  const camera = useRef<CameraView>(null); //TODO: Implement camera feature to upload items
   const [cameraVisible, setCameraVisible] = useState(false);
-  const camera = useRef<CameraView>(null);
   const { authToken, onLogout } = useAuth();
   const router = useRouter();
-  const pathname = usePathname(); // Use the usePathname hook
 
   useEffect(() => {
     getProfile();
-    console.log(userData.email);
   }, []);
 
   const [isClearHistoryVisible, setIsClearHistoryVisible] = useState(false);
@@ -100,6 +95,7 @@ const ProfileScreen = ({ user }: Props) => {
 
       if (response.data && response.data.length > 0) {
         console.log("UserProfile:", response.data[0]);
+        setUserData(response.data[0]);
       } else {
         console.error("No user data found in the response.");
         Alert.alert("Error", "No user data found.");
@@ -116,7 +112,7 @@ const ProfileScreen = ({ user }: Props) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { paddingTop: insets.top }]}>
       <DangerModal
         isVisible={isClearHistoryVisible}
         onClose={closeClearHistoryModal}
@@ -129,7 +125,7 @@ const ProfileScreen = ({ user }: Props) => {
         onClose={closeLogoutModal}
         dangerMessage={"Are you sure you want to logout?"}
         dangerOption1="Log out"
-        onDone={handleLogout}
+        onDone={onLogout}
       />
       <View style={styles.header}>
         <Text style={styles.headerTitle}>My Profile</Text>
@@ -153,7 +149,7 @@ const ProfileScreen = ({ user }: Props) => {
         <View style={styles.userInfoContainer}>
           <View style={styles.userInfoEmailContainer}>
             <MaterialIcons name="email" size={22} color="#555" />
-            <Text style={styles.userEmail}>{userData.email}</Text>
+            <Text style={styles.userEmail}>{userData?.email}</Text>
           </View>
         </View>
       </View>
@@ -260,23 +256,23 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   headerTitle: {
-    fontSize: 22,
+    fontSize: 28,
     fontWeight: "bold",
     color: "#333",
   },
   topRowContainer: {
-    flexDirection: "row",
+    flexDirection: "column",
     alignItems: "center",
     width: "100%",
-    paddingHorizontal: 10,
+    padding: 10,
   },
   profileContainer: {
     position: "relative",
     marginRight: 15,
   },
   profileImage: {
-    width: 80,
-    height: 80,
+    width: 140,
+    height: 140,
     borderRadius: 40,
   },
   cameraButton: {
@@ -297,6 +293,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   userInfoEmailContainer: {
+    marginTop: 10,
     flexDirection: "row",
     alignItems: "center",
   },
@@ -320,20 +317,19 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     color: "#333",
-    marginBottom: 15,
   },
   infoItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 15,
+    paddingVertical: 12,
   },
   infoItemLeft: {
     flexDirection: "row",
     alignItems: "center",
   },
   infoItemText: {
-    fontSize: 16,
+    fontSize: 12,
     color: "#333",
     marginLeft: 12,
   },
@@ -351,7 +347,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 10,
     width: "100%",
-    marginVertical: 10,
+    marginTop: 20,
   },
   logoutIcon: {
     marginRight: 8,

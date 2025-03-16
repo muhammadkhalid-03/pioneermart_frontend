@@ -23,7 +23,7 @@ export default function RootLayout() {
     const checkAuth = async () => {
       const token = await AsyncStorage.getItem("authToken");
       if (!token) {
-        router.replace("/signin");
+        router.replace("/(tabs)");
       }
     };
     checkAuth();
@@ -52,8 +52,6 @@ export default function RootLayout() {
         <FavoritesProvider>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="signin" options={{ presentation: "modal" }} />
-            <Stack.Screen name="signup" options={{ presentation: "modal" }} />
             <Stack.Screen name="ItemDetails" options={{ headerShown: true }} />
           </Stack>
         </FavoritesProvider>
