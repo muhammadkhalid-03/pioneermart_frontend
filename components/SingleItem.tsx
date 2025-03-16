@@ -30,6 +30,10 @@ const SingleItem = ({ item, source }: Props) => {
   const handleItemPress = () => {
     if (source === "myItems") {
       setShowFavoritesIcon(false);
+      router.push({
+        pathname: "/ItemDetails",
+        params: { item: JSON.stringify(item), source: source },
+      });
     }
     router.push({
       pathname: "/ItemDetails",
@@ -43,7 +47,7 @@ const SingleItem = ({ item, source }: Props) => {
     >
       <View style={styles.container}>
         <Image source={{ uri: item.image }} style={styles.itemImage} />
-        {showFavoritesIcon && (
+        {showFavoritesIcon && route.name !== "additionalinfo/MyItems" ? (
           <TouchableOpacity
             style={styles.favBtn}
             onPress={() => toggleFavorite(item.id, authToken || "")}
@@ -54,7 +58,7 @@ const SingleItem = ({ item, source }: Props) => {
               color="black"
             />
           </TouchableOpacity>
-        )}
+        ) : null}
         {route.name === "ItemDetails" ? null : (
           <Text style={styles.title}>${item.price}</Text>
         )}

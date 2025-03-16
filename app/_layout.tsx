@@ -1,5 +1,5 @@
 import { useFonts } from "expo-font";
-import { router, Stack } from "expo-router";
+import { router, Stack, usePathname } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
@@ -7,6 +7,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { FavoritesProvider } from "./contexts/FavoritesContext";
 import { SearchProvider } from "./contexts/SearchContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import useSingleItemStore from "@/stores/singleItemStore";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -15,6 +16,8 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
+  const { setShowFavoritesIcon } = useSingleItemStore();
+  const pathname = usePathname();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -25,6 +28,13 @@ export default function RootLayout() {
     };
     checkAuth();
   }, []);
+
+  useEffect(() => {
+    if (!pathname.includes("MyItems") && !pathname.includes("ItemDetails")) {
+      setShowFavoritesIcon(true);
+    }
+    console.log("Pathname:", pathname);
+  }, [pathname]);
 
   useEffect(() => {
     if (loaded) {

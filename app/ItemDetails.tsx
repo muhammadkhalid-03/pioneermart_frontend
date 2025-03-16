@@ -16,10 +16,11 @@ const width = Dimensions.get("window").width; // -40 b/c marginHorizontal in ind
 
 const ItemDetails = () => {
   const route = useRoute();
-  const { item: itemString } = useLocalSearchParams(); // access the item parameter as a string
+  const { item: itemString, source } = useLocalSearchParams(); // access the item parameter as a string
   const item = JSON.parse(itemString as string); // turn into JSON object for details page
 
   const [isVisible, setIsVisible] = useState(false);
+  console.log(route.name);
 
   const openModal = () => {
     setIsVisible(true);
@@ -61,12 +62,16 @@ const ItemDetails = () => {
         <Text style={styles.title}>Seller: {item.seller_name}</Text>
         <Text style={styles.title}>Date Posted: {item.created_at}</Text>
         <Text style={styles.title}>Category: {item.category_name}</Text>
-        <TouchableOpacity
-          style={{ backgroundColor: "blue", padding: 15, borderRadius: 5 }}
-          onPress={openModal}
-        >
-          <Text style={{ color: "white", fontSize: 16 }}>Request Puchase</Text>
-        </TouchableOpacity>
+        {source === "myItems" && (
+          <TouchableOpacity
+            style={{ backgroundColor: "blue", padding: 15, borderRadius: 5 }}
+            onPress={openModal}
+          >
+            <Text style={{ color: "white", fontSize: 16 }}>
+              Request Puchase
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
     </>
   );

@@ -12,19 +12,11 @@ import { BASE_URL } from "@/config";
 import { useItemsStore } from "@/stores/useSearchStore";
 
 const HomeScreen = () => {
-  const {
-    screens,
-    activeScreen,
-    setActiveScreen,
-    loadItems,
-    loadCategories,
-    categories,
-    toggleFavorite,
-  } = useItemsStore();
+  const { screens, setActiveScreen, loadItems, loadCategories, categories } =
+    useItemsStore();
 
   const screenId = "home";
-  const { filteredItems, searchQuery, isLoading } = screens[screenId];
-  const [items, setItems] = useState<ItemType[]>([]);
+  const { filteredItems, isLoading } = screens[screenId];
 
   const { authToken } = useAuth(); //auth context
 

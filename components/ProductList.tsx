@@ -9,8 +9,6 @@ import {
 import { ItemType } from "@/types/types";
 import SingleItem from "./SingleItem";
 import { useRoute } from "@react-navigation/native";
-import { useAuth } from "@/app/contexts/AuthContext";
-import { useItemsStore } from "@/stores/useSearchStore";
 
 type ProductListProps = {
   items: ItemType[] | null;
@@ -45,7 +43,8 @@ const ProductList = ({
   return (
     <View style={styles.container}>
       <Text style={styles.title}>
-        {route.name === "index" ? "Latest" : "Your"} Items
+        {route.name === "index" ? "Latest" : "Your"}{" "}
+        {route.name === "favorites" ? "Favorites" : "Items"}
       </Text>
       <FlatList
         data={items}
