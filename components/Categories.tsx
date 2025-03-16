@@ -1,29 +1,32 @@
-import React from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  ScrollView, 
-  TouchableOpacity 
-} from 'react-native';
-import { CategoryType } from '@/types/types';
+import React from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
+import { CategoryType } from "@/types/types";
+import { useItemsStore } from "@/stores/useSearchStore";
+import { filter } from "lodash";
 
 type CategoriesProps = {
-  categories: CategoryType[];
-  selectedCategory: number | null;
-  onSelectCategory: (categoryId: number | null) => void;
+  screenId: "home" | "favorites" | "myItems";
+  categories: CategoryType[] | null;
 };
 
-const Categories = ({ 
-  categories, 
-  selectedCategory, 
-  onSelectCategory 
+const Categories: React.FC<CategoriesProps> = ({
+  screenId,
+  categories,
 }: CategoriesProps) => {
+  const { screens, filterByCategory } = useItemsStore();
+  const { selectedCategory } = screens[screenId];
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Categories</Text>
-      <ScrollView 
-        horizontal 
+      <ScrollView
+        horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollViewContent}
       >
@@ -31,40 +34,42 @@ const Categories = ({
         <TouchableOpacity
           style={[
             styles.categoryItem,
-            selectedCategory === null && styles.selectedCategory
+            selectedCategory === null && styles.selectedCategory,
           ]}
-          onPress={() => onSelectCategory(null)}
+          onPress={() => filterByCategory(screenId, null)}
         >
-          <Text 
+          <Text
             style={[
               styles.categoryText,
-              selectedCategory === null && styles.selectedCategoryText
+              selectedCategory === null && styles.selectedCategoryText,
             ]}
           >
             All
           </Text>
         </TouchableOpacity>
-        
+
         {/* list of categories */}
-        {categories.map((category) => (
-          <TouchableOpacity
-            key={category.id}
-            style={[
-              styles.categoryItem,
-              selectedCategory === category.id && styles.selectedCategory
-            ]}
-            onPress={() => onSelectCategory(category.id)}
-          >
-            <Text 
+        {categories &&
+          categories.map((category) => (
+            <TouchableOpacity
+              key={category.id}
               style={[
-                styles.categoryText,
-                selectedCategory === category.id && styles.selectedCategoryText
+                styles.categoryItem,
+                selectedCategory === category.id && styles.selectedCategory,
               ]}
+              onPress={() => filterByCategory(screenId, category.id)}
             >
-              {category.name}
-            </Text>
-          </TouchableOpacity>
-        ))}
+              <Text
+                style={[
+                  styles.categoryText,
+                  selectedCategory === category.id &&
+                    styles.selectedCategoryText,
+                ]}
+              >
+                {category.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
       </ScrollView>
     </View>
   );
@@ -78,7 +83,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginLeft: 15,
     marginBottom: 10,
   },
@@ -90,20 +95,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginHorizontal: 5,
     borderRadius: 20,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "#f0f0f0",
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: "#e0e0e0",
   },
   selectedCategory: {
-    backgroundColor: '#4285F4',
-    borderColor: '#4285F4',
+    backgroundColor: "#4285F4",
+    borderColor: "#4285F4",
   },
   categoryText: {
     fontSize: 14,
-    color: '#333',
+    color: "#333",
   },
   selectedCategoryText: {
-    color: 'white',
-    fontWeight: '600',
+    color: "white",
+    fontWeight: "600",
   },
 });
