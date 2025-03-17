@@ -1,17 +1,26 @@
 import { Entypo } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 
 const ContactUs = () => {
   const router = useRouter();
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Entypo name="chevron-left" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Contact Us</Text>
-      </View>
+      <Stack.Screen
+        options={{
+          headerTitle: "Contact Us",
+          headerTitleAlign: "center",
+          headerShown: true,
+          headerLeft: () => (
+            <TouchableOpacity
+              style={{ padding: 8 }}
+              onPress={() => router.back()}
+            >
+              <Entypo name="chevron-left" size={24} color="black" />
+            </TouchableOpacity>
+          ),
+        }}
+      />
       <View style={styles.contentContainer}>
         <Text style={styles.text1}>
           If you have any questions or feedback about PioneerMart, please

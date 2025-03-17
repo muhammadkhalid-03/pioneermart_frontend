@@ -125,7 +125,7 @@ const ProfileScreen = ({ user }: Props) => {
         onClose={closeLogoutModal}
         dangerMessage={"Are you sure you want to logout?"}
         dangerOption1="Log out"
-        onDone={onLogout}
+        onDone={async () => await onLogout()}
       />
       <View style={styles.header}>
         <Text style={styles.headerTitle}>My Profile</Text>

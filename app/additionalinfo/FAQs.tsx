@@ -1,5 +1,5 @@
 import { Entypo } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import {
   StyleSheet,
   View,
@@ -63,16 +63,21 @@ const FAQs = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <TouchableOpacity
-          style={styles.backBtn}
-          onPress={() => router.back()}
-          activeOpacity={0.7}
-        >
-          <Entypo name="chevron-left" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Frequently Asked Questions</Text>
-      </View>
+      <Stack.Screen
+        options={{
+          headerTitle: "Frequently Asked Questions",
+          headerTitleAlign: "center",
+          headerShown: true,
+          headerLeft: () => (
+            <TouchableOpacity
+              style={{ padding: 8 }}
+              onPress={() => router.back()}
+            >
+              <Entypo name="chevron-left" size={24} color="black" />
+            </TouchableOpacity>
+          ),
+        }}
+      />
 
       <ScrollView style={styles.contentContainer}>
         {faqData.map((faq) => (
@@ -131,6 +136,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
+    marginTop: 20,
   },
   faqItem: {
     backgroundColor: "#f9f9f9",

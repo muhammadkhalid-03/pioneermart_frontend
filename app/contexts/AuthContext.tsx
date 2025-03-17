@@ -32,17 +32,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     loadToken();
   }, []);
 
-  const handleSetAuthToken = (token: string | null) => {
-    setAuthToken(token);
-    setIsAuthenticated(!!token);
-  };
-
   const onLogout = async () => {
     try {
       await AsyncStorage.removeItem("authToken");
-      handleSetAuthToken(null);
-      // setIsAuthenticated(false);
-      router.replace("/");
+      setAuthToken(null);
+      setIsAuthenticated(false);
+      router.replace("/(auth)");
       console.log("User logged out");
     } catch (error) {
       console.error("Failed to log out", error);

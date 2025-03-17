@@ -62,7 +62,7 @@ const ItemDetails = () => {
         <Text style={styles.title}>Seller: {item.seller_name}</Text>
         <Text style={styles.title}>Date Posted: {item.created_at}</Text>
         <Text style={styles.title}>Category: {item.category_name}</Text>
-        {source === "myItems" && (
+        {source !== "myItems" && (
           <TouchableOpacity
             style={{ backgroundColor: "blue", padding: 15, borderRadius: 5 }}
             onPress={openModal}

@@ -1,9 +1,8 @@
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
-import { Link, router, Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import React, { useState } from "react";
 import { BASE_URL } from "@/config";
 import axios from "axios";
-import { Entypo } from "@expo/vector-icons";
 import InputField from "@/components/inputField";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 
