@@ -8,6 +8,7 @@ import { FavoritesProvider } from "./contexts/FavoritesContext";
 import { SearchProvider } from "./contexts/SearchContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useSingleItemStore from "@/stores/singleItemStore";
+import { BackHandler } from "react-native";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -27,6 +28,18 @@ export default function RootLayout() {
       }
     };
     checkAuth();
+  }, []);
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        // Return true to prevent default behavior
+        return true;
+      }
+    );
+
+    return () => backHandler.remove();
   }, []);
 
   useEffect(() => {
