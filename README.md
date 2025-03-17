@@ -1,4 +1,4 @@
-# Welcome to your Expo app 👋
+Disregard this readme I'm gonna merge this repo with main repo when everyone gets back
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
