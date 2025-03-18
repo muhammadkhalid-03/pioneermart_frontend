@@ -37,6 +37,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await AsyncStorage.removeItem("authToken");
       setAuthToken(null);
       setIsAuthenticated(false);
+      // router.replace({
+      //   pathname: "/(auth)",
+      // });
       router.replace("/(auth)");
       console.log("User logged out");
     } catch (error) {
