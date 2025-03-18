@@ -1,10 +1,11 @@
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import { router, Stack } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BASE_URL } from "@/config";
 import axios from "axios";
 import InputField from "@/components/inputField";
 import { Colors } from "react-native/Libraries/NewAppScreen";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Props = {};
 
@@ -33,9 +34,21 @@ const WelcomeScreen = (props: Props) => {
     } catch (error) {
       console.log(email);
       console.log("Error:", error);
-      // alert("Failed to do OTP stuff");
+      alert("Failed to do OTP stuff");
     }
   };
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     const token = await AsyncStorage.getItem("authToken");
+  //     if (token) {
+  //       console.log("user already logged in");
+  //       router.replace("/(tabs)");
+  //     } else {
+  //       router.replace("/(auth)");
+  //     }
+  //   };
+  //   checkAuth();
+  // }, []);
   return (
     <>
       <Stack.Screen

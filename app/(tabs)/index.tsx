@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { Stack } from "expo-router";
+import React, { useCallback, useEffect } from "react";
+import { Stack, useFocusEffect } from "expo-router";
 import Header from "@/components/Header";
 import ProductList from "@/components/ProductList";
 import Categories from "@/components/Categories";
@@ -7,13 +7,35 @@ import { useAuth } from "../contexts/AuthContext";
 import { useItemsStore } from "@/stores/useSearchStore";
 
 const HomeScreen = () => {
-  const { screens, setActiveScreen, loadItems, loadCategories, categories } =
-    useItemsStore();
+  const {
+    screens,
+    setActiveScreen,
+    loadItems,
+    loadCategories,
+    categories,
+    refreshItems,
+  } = useItemsStore();
 
   const screenId = "home";
   const { filteredItems, isLoading } = screens[screenId];
 
   const { authToken } = useAuth(); //auth context
+
+  useFocusEffect(
+    useCallback(() => {
+      const refreshData = async () => {
+        if (authToken) {
+          await refreshItems(screenId, authToken);
+        }
+      };
+
+      refreshData();
+
+      return () => {
+        // Cleanup function if needed
+      };
+    }, [authToken])
+  );
 
   // Load items and categories when component mounts
   useEffect(() => {

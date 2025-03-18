@@ -20,6 +20,18 @@ export default function RootLayout() {
   const { setShowFavoritesIcon } = useSingleItemStore();
   const pathname = usePathname();
 
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     const token = await AsyncStorage.getItem("authToken");
+  //     if (token) {
+  //       console.log("user already logged in");
+  //       router.replace("/(tabs)");
+  //     } else {
+  //       router.replace("/(auth)");
+  //     }
+  //   };
+  //   checkAuth();
+  // }, []);
   useEffect(() => {
     const checkAuth = async () => {
       const token = await AsyncStorage.getItem("authToken");

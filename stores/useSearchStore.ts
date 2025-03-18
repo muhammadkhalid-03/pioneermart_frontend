@@ -13,6 +13,7 @@ interface ScreenState {
   searchQuery: string;
   selectedCategory: number | null;
   isLoading: boolean;
+  lastUpdated: number; // Timestamp to track when data was last refreshed
 }
 
 //main store interface
@@ -21,6 +22,7 @@ interface ItemsStoreState {
   screens: Record<ScreenId, ScreenState>; //don't really know what this is but ok
   activeScreen: ScreenId;
   categories: Array<{ id: number; name: string }>;
+  refreshItems: (screenId: ScreenId, authToken: string) => Promise<void>; // New function to force refresh
 
   //actions
   setActiveScreen: (screenId: ScreenId) => void;
@@ -49,6 +51,7 @@ const initialScreenState: ScreenState = {
   searchQuery: "",
   selectedCategory: null,
   isLoading: false,
+  lastUpdated: 0,
 };
 
 export const useItemsStore = create<ItemsStoreState>((set, get) => ({
@@ -64,8 +67,84 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
   //set active screen
   setActiveScreen: (screenId) => set({ activeScreen: screenId }),
 
+  refreshItems: async (screenId: ScreenId, authToken: string) => {
+    // Update loading state for a specific screen
+    set((state) => ({
+      screens: {
+        ...state.screens,
+        [screenId]: {
+          ...state.screens[screenId],
+          isLoading: true,
+        },
+      },
+    }));
+
+    try {
+      let endpoint = "";
+      // Different endpoints based on screen
+      if (screenId === "home") {
+        endpoint = "api/items/";
+      } else if (screenId === "favorites") {
+        endpoint = "api/items/favorites/";
+      } else {
+        endpoint = "api/items/my_items/";
+      }
+
+      const cleanToken = authToken?.trim();
+      const response = await axios.get(`${BASE_URL}/${endpoint}`, {
+        headers: {
+          Authorization: `Bearer ${cleanToken}`,
+          "Content-Type": "application/json",
+        },
+        // Add cache-busting parameter
+        params: { _t: Date.now() },
+      });
+
+      set((state) => ({
+        screens: {
+          ...state.screens,
+          [screenId]: {
+            ...state.screens[screenId],
+            items: response.data,
+            filteredItems:
+              state.screens[screenId].selectedCategory === null
+                ? response.data
+                : response.data.filter(
+                    (item: ItemType) =>
+                      Number(item.category) ===
+                      state.screens[screenId].selectedCategory
+                  ),
+            isLoading: false,
+            lastUpdated: Date.now(),
+          },
+        },
+      }));
+    } catch (error) {
+      console.error(`Error refreshing items for ${screenId}:`, error);
+
+      // Set loading to false on error
+      set((state) => ({
+        screens: {
+          ...state.screens,
+          [screenId]: {
+            ...state.screens[screenId],
+            isLoading: false,
+          },
+        },
+      }));
+    }
+  },
+
   //load items for a specific screen
   loadItems: async (screenId, authToken) => {
+    const currentScreen = get().screens[screenId];
+    const now = Date.now();
+    if (
+      now - currentScreen.lastUpdated < 2000 &&
+      currentScreen.items.length > 0
+    ) {
+      return;
+    }
     //update loading state for a specific screen
     set((state) => ({
       screens: {
@@ -105,6 +184,7 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
           },
         },
       }));
+      console.log(response.data);
     } catch (error) {
       console.error(`Error loading items for ${screenId}:`, error);
 
@@ -133,6 +213,7 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
           "Content-Type": "application/json",
         },
       });
+      console.log("\n\nCategory:", response.data);
       set({ categories: response.data });
     } catch (error) {
       set({ categories: [] });

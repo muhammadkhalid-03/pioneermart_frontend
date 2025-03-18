@@ -13,6 +13,8 @@ import { useRoute } from "@react-navigation/native";
 import { useItemsStore } from "@/stores/useSearchStore";
 import { useAuth } from "@/app/contexts/AuthContext";
 import useSingleItemStore from "@/stores/singleItemStore";
+import { useState } from "react";
+import ZoomModal from "./ZoomModal";
 
 type Props = {
   item: ItemType;
@@ -26,6 +28,8 @@ const SingleItem = ({ item, source }: Props) => {
   const { toggleFavorite } = useItemsStore();
   const { authToken } = useAuth();
   const { showFavoritesIcon, setShowFavoritesIcon } = useSingleItemStore();
+
+  const [isZoomVisible, setIsZoomVisible] = useState(false);
 
   const handleItemPress = () => {
     if (source === "myItems") {
@@ -43,9 +47,25 @@ const SingleItem = ({ item, source }: Props) => {
 
   return (
     <TouchableOpacity
-      onPress={route.name === "ItemDetails" ? () => {} : handleItemPress}
+      onPress={
+        route.name === "ItemDetails"
+          ? () => setIsZoomVisible(true)
+          : handleItemPress
+      } //if on ItemDetails then do nothing
     >
-      <View style={styles.container}>
+      <View
+        style={[
+          styles.container,
+          route.name === "ItemDetails" && { width: width },
+        ]}
+      >
+        {isZoomVisible && (
+          <ZoomModal
+            isVisible={isZoomVisible}
+            onClose={() => setIsZoomVisible(false)}
+            item={item}
+          />
+        )}
         <Image source={{ uri: item.image }} style={styles.itemImage} />
         {showFavoritesIcon && route.name !== "additionalinfo/MyItems" ? (
           <TouchableOpacity
@@ -74,7 +94,7 @@ export default SingleItem;
 
 const styles = StyleSheet.create({
   container: {
-    width: (width - 20) / 2, // Ensure spacing works correctly
+    width: (width - 10) / 2, // Ensure spacing works correctly
     marginHorizontal: 5, // Add margin for spacing
   },
   itemImage: {

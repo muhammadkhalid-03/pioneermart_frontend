@@ -20,6 +20,7 @@ const OtpScreen = () => {
       const { access, refresh } = response.data;
       if (access && refresh) {
         await AsyncStorage.setItem("authToken", access);
+        // await AsyncStorage.setItem("refreshToken", refresh); //added this for testing
         setAuthToken(access); //update the context
         Alert.alert("Success", "Login successful!");
         router.push("/(tabs)");

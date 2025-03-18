@@ -17,7 +17,9 @@
   "dependencies": {
     "@expo/metro-config": "^0.19.11",
     "@expo/vector-icons": "^14.0.2",
+    "@openspacelabs/react-native-zoomable-view": "^2.3.1",
     "@react-native-async-storage/async-storage": "^2.1.2",
+    "@react-native-picker/picker": "^2.11.0",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.15",
     "@react-navigation/stack": "^7.1.2",
