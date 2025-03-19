@@ -29,7 +29,7 @@ export default function TabLayout() {
               name="add"
               size={24}
               color="black"
-              onPress={() => router.push("/AddItemScreen")}
+              // onPress={() => router.push("/AddItemScreen")}
             />
           ),
         }}

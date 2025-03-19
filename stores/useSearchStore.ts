@@ -25,9 +25,11 @@ interface ItemsStoreState {
   refreshItems: (screenId: ScreenId, authToken: string) => Promise<void>; // New function to force refresh
 
   //actions
+  setIsReturningFromDetails: (value: boolean) => void;
   setActiveScreen: (screenId: ScreenId) => void;
 
   //data loading stuff
+  isReturningFromDetails: boolean;
   loadItems: (screenId: ScreenId, authToken: string) => Promise<void>;
   loadCategories: (authToken: string) => Promise<void>;
 
@@ -63,11 +65,23 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
   },
   activeScreen: "home",
   categories: [],
+  isReturningFromDetails: false,
+  setIsReturningFromDetails: (value) => set({ isReturningFromDetails: value }),
 
   //set active screen
   setActiveScreen: (screenId) => set({ activeScreen: screenId }),
 
   refreshItems: async (screenId: ScreenId, authToken: string) => {
+    const currentScreen = get().screens[screenId];
+    const now = Date.now();
+
+    // Only refresh if it's been more than 60 seconds since last update or if no items exist
+    if (
+      now - currentScreen.lastUpdated < 60000 &&
+      currentScreen.items.length > 0
+    ) {
+      return;
+    }
     // Update loading state for a specific screen
     set((state) => ({
       screens: {

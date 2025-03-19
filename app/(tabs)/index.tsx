@@ -5,6 +5,7 @@ import ProductList from "@/components/ProductList";
 import Categories from "@/components/Categories";
 import { useAuth } from "../contexts/AuthContext";
 import { useItemsStore } from "@/stores/useSearchStore";
+import { ActivityIndicator } from "react-native";
 
 const HomeScreen = () => {
   const {
@@ -20,21 +21,18 @@ const HomeScreen = () => {
   const { filteredItems, isLoading } = screens[screenId];
 
   const { authToken } = useAuth(); //auth context
+  const { isReturningFromDetails, setIsReturningFromDetails } = useItemsStore();
 
   useFocusEffect(
     useCallback(() => {
       const refreshData = async () => {
-        if (authToken) {
+        if (authToken && !isReturningFromDetails) {
           await refreshItems(screenId, authToken);
         }
+        setIsReturningFromDetails(false); // reset flag after refreshing data
       };
-
       refreshData();
-
-      return () => {
-        // Cleanup function if needed
-      };
-    }, [authToken])
+    }, [authToken, isReturningFromDetails])
   );
 
   // Load items and categories when component mounts
