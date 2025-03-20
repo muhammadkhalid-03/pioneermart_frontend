@@ -15,6 +15,7 @@ import { useAuth } from "@/app/contexts/AuthContext";
 import useSingleItemStore from "@/stores/singleItemStore";
 import { useState } from "react";
 import ZoomModal from "./ZoomModal";
+import { useUserStore } from "@/stores/userStore";
 
 type Props = {
   item: ItemType;
@@ -28,6 +29,7 @@ const SingleItem = ({ item, source }: Props) => {
   const { toggleFavorite } = useItemsStore();
   const { authToken } = useAuth();
   const { showFavoritesIcon, setShowFavoritesIcon } = useSingleItemStore();
+  const { userData } = useUserStore();
 
   const [isZoomVisible, setIsZoomVisible] = useState(false);
 
@@ -67,7 +69,7 @@ const SingleItem = ({ item, source }: Props) => {
           />
         )}
         <Image source={{ uri: item.image }} style={styles.itemImage} />
-        <View style={styles.myItemTag} />
+        {item.seller === userData?.id && <View style={styles.myItemTag} />}
         {showFavoritesIcon && route.name !== "additionalinfo/MyItems" ? (
           <TouchableOpacity
             style={styles.favBtn}
