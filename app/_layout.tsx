@@ -4,7 +4,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
 import { AuthProvider } from "./contexts/AuthContext";
-import { FavoritesProvider } from "./contexts/FavoritesContext";
+// import { FavoritesProvider } from "./contexts/FavoritesContext";
 import { SearchProvider } from "./contexts/SearchContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useSingleItemStore from "@/stores/singleItemStore";
@@ -49,14 +49,12 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <SearchProvider>
-        <FavoritesProvider>
-          <AppInitialier />
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="ItemDetails" options={{ headerShown: true }} />
-          </Stack>
-        </FavoritesProvider>
+        <AppInitialier />
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="ItemDetails" options={{ headerShown: true }} />
+        </Stack>
       </SearchProvider>
     </AuthProvider>
   );

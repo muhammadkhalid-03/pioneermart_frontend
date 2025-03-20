@@ -41,6 +41,7 @@ interface ItemsStoreState {
   ) => Promise<void>;
   filterByCategory: (screenId: ScreenId, categoryId: number | null) => void;
   clearSearch: (screenId: ScreenId) => void;
+  getItemById: (id: number) => ItemType | undefined;
 
   //toggling favorites function
   toggleFavorite: (itemId: number, authToken: string) => Promise<void>;
@@ -70,6 +71,33 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
 
   //set active screen
   setActiveScreen: (screenId) => set({ activeScreen: screenId }),
+
+  getItemById: (itemId: number) => {
+    const state = get();
+
+    // First check the active screen
+    const activeScreenItems = state.screens[state.activeScreen].items;
+    const itemFromActiveScreen = activeScreenItems.find(
+      (item) => item.id === itemId
+    );
+    if (itemFromActiveScreen) {
+      return itemFromActiveScreen;
+    }
+
+    // If not found in active screen, check all screens
+    for (const screenId of ["home", "favorites", "myItems"] as ScreenId[]) {
+      if (screenId === state.activeScreen) continue; // Skip active screen as we already checked
+
+      const screenItems = state.screens[screenId].items;
+      const item = screenItems.find((item) => item.id === itemId);
+      if (item) {
+        return item;
+      }
+    }
+
+    // If item not found in any screen
+    return undefined;
+  },
 
   refreshItems: async (screenId: ScreenId, authToken: string) => {
     const currentScreen = get().screens[screenId];
@@ -198,7 +226,7 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
           },
         },
       }));
-      console.log(response.data);
+      // console.log(response.data);
     } catch (error) {
       console.error(`Error loading items for ${screenId}:`, error);
 
@@ -227,7 +255,6 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
           "Content-Type": "application/json",
         },
       });
-      console.log("\n\nCategory:", response.data);
       set({ categories: response.data });
     } catch (error) {
       set({ categories: [] });
@@ -413,7 +440,7 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
           },
         },
       }));
-
+      get().loadItems("home", authToken);
       //reload favorites after toggling
       get().loadItems("favorites", authToken);
     } catch (error) {

@@ -26,12 +26,13 @@ const width = Dimensions.get("window").width - 40; // -40 b/c marginHorizontal i
 
 const SingleItem = ({ item, source }: Props) => {
   const route = useRoute();
-  const { toggleFavorite } = useItemsStore();
+  const { toggleFavorite, getItemById } = useItemsStore();
   const { authToken } = useAuth();
   const { showFavoritesIcon, setShowFavoritesIcon } = useSingleItemStore();
   const { userData } = useUserStore();
 
   const [isZoomVisible, setIsZoomVisible] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(item.is_favorited);
 
   const handleItemPress = () => {
     if (source === "myItems") {
@@ -41,10 +42,17 @@ const SingleItem = ({ item, source }: Props) => {
         params: { item: JSON.stringify(item), source: source },
       });
     }
+    setShowFavoritesIcon(true);
     router.push({
       pathname: "/ItemDetails",
       params: { item: JSON.stringify(item) },
     });
+  };
+
+  // get the latest item state
+  const handleFavoriteToggle = async (item: ItemType) => {
+    await toggleFavorite(item.id, authToken || "");
+    setIsFavorited(!isFavorited);
   };
 
   return (
@@ -73,10 +81,10 @@ const SingleItem = ({ item, source }: Props) => {
         {showFavoritesIcon && route.name !== "additionalinfo/MyItems" ? (
           <TouchableOpacity
             style={styles.favBtn}
-            onPress={() => toggleFavorite(item.id, authToken || "")}
+            onPress={() => handleFavoriteToggle(item)}
           >
             <AntDesign
-              name={item.is_favorited ? "heart" : "hearto"}
+              name={isFavorited ? "heart" : "hearto"}
               size={22}
               color="black"
             />
