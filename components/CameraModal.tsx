@@ -24,8 +24,17 @@ const CameraModal = ({ visible, onClose, onCapture }: CameraModalProps) => {
 
   const takePicture = async () => {
     if (camera.current) {
-      const photo = await camera.current.takePictureAsync();
-      console.log(photo);
+      try {
+        console.log("taking picture...");
+        const photo = await camera.current.takePictureAsync();
+        console.log("Picture taken...", photo?.uri);
+        if (photo) onCapture(photo?.uri);
+        console.log(photo);
+      } catch (error) {
+        console.error("Failed to take picture:", error);
+      }
+    } else {
+      console.log("Caerma ref is null");
     }
   };
 
@@ -34,12 +43,13 @@ const CameraModal = ({ visible, onClose, onCapture }: CameraModalProps) => {
     console.log("Turning camera...");
   };
 
-  if (!permission?.granted) {
-    return null;
-  }
-
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      transparent={false}
+      animationType="slide"
+      onRequestClose={onClose}
+    >
       <View style={styles.cameraContainer}>
         <CameraView style={styles.camera} facing={facing} ref={camera}>
           <View style={styles.cameraControlsContainer}>

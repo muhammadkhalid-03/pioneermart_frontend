@@ -8,36 +8,41 @@ import {
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { UserInfo } from "@/types/types";
 import { MaterialIcons } from "@expo/vector-icons";
 import Foundation from "@expo/vector-icons/Foundation";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import CameraModal from "@/components/CameraModal";
 import { useAuth } from "../contexts/AuthContext";
-import axios from "axios";
 import { useRouter } from "expo-router";
 import { ScrollView } from "react-native";
 import DangerModal from "@/components/DangerModal";
-import { BASE_URL } from "@/config";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useUserStore } from "@/stores/userStore";
 
-type Props = {
-  user: UserInfo;
-};
-
-const ProfileScreen = ({ user }: Props) => {
+const ProfileScreen = () => {
   const [permission, requestPermission] = useCameraPermissions();
   const insets = useSafeAreaInsets();
-  const [userData, setUserData] = useState<UserInfo>();
-  const [profileImage, setProfileImage] = useState<string | null>(null); //TODO: Implement camera feature to upload items
   const camera = useRef<CameraView>(null); //TODO: Implement camera feature to upload items
   const [cameraVisible, setCameraVisible] = useState(false);
+  const [tempProfileImage, setTempProfileImage] = useState<string | null>(null);
   const { authToken, onLogout } = useAuth();
   const router = useRouter();
 
+  const { userData, isLoading, error, fetchUserData } = useUserStore();
+
   useEffect(() => {
-    getProfile();
-  }, []);
+    if (authToken) {
+      loadUserProfile();
+    }
+  }, [authToken]);
+
+  const loadUserProfile = async () => {
+    try {
+      await fetchUserData(authToken || "");
+    } catch (error) {
+      Alert.alert("Error", "Failed to load profile. Please try again");
+    }
+  };
 
   const [isClearHistoryVisible, setIsClearHistoryVisible] = useState(false);
   const [isLogoutVisible, setIsLogoutVisible] = useState(false);
@@ -62,10 +67,6 @@ const ProfileScreen = ({ user }: Props) => {
     console.log("Doesn't want to log out...");
   };
 
-  const handleLogout = async () => {
-    await onLogout();
-  };
-
   const handleOpenCamera = async () => {
     if (!permission?.granted) {
       const permissionResult = await requestPermission();
@@ -81,35 +82,55 @@ const ProfileScreen = ({ user }: Props) => {
     setCameraVisible(true);
   };
 
-  const getProfile = async () => {
-    try {
-      const cleanToken = authToken?.trim();
-      const URL = `${BASE_URL}/api/users/`;
-      const response = await axios.get(URL, {
-        headers: {
-          Authorization: `Bearer ${cleanToken}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      });
+  // const getProfile = async () => {
+  //   try {
+  //     const cleanToken = authToken?.trim();
+  //     const URL = `${BASE_URL}/api/users/`;
+  //     const response = await axios.get(URL, {
+  //       headers: {
+  //         Authorization: `Bearer ${cleanToken}`,
+  //         "Content-Type": "application/json",
+  //         Accept: "application/json",
+  //       },
+  //     });
 
-      if (response.data && response.data.length > 0) {
-        console.log("UserProfile:", response.data[0]);
-        setUserData(response.data[0]);
-      } else {
-        console.error("No user data found in the response.");
-        Alert.alert("Error", "No user data found.");
-      }
-    } catch (error) {
-      console.error("Error getting user profile:", error);
-      Alert.alert("Error", "Failed to load profile. Please try again.");
-    }
-  };
+  //     if (response.data && response.data.length > 0) {
+  //       console.log("UserProfile:", response.data[0]);
+  //       setUserData(response.data[0]);
+  //     } else {
+  //       console.error("No user data found in the response.");
+  //       Alert.alert("Error", "No user data found.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error getting user profile:", error);
+  //     Alert.alert("Error", "Failed to load profile. Please try again.");
+  //   }
+  // };
 
-  const handleImageCapture = () => {
-    console.log("profile.tsx: image captured...");
-    setCameraVisible(false);
-  };
+  // const handleImageCapture = async (imageUri: string) => {
+  //   try {
+  //     console.log("profile.tsx: image captured:", imageUri);
+  //     setTempProfileImage(imageUri);
+  //     setCameraVisible(false);
+  //     await updateProfileImage(imageUri, authToken || "");
+  //     Alert.alert(
+  //       "Profile Image Updated",
+  //       "Your profile image has been updated."
+  //     );
+  //   } catch (error) {
+  //     Alert.alert("Error", "Failed to update profile image. Please try again.");
+  //   } finally {
+  //     setCameraVisible(false);
+  //   }
+  // };
+
+  if (isLoading && !userData) {
+    return (
+      <View style={[styles.container, styles.loadingContainer]}>
+        <Text>Loading profile...</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={[styles.container, { paddingTop: insets.top }]}>
@@ -138,12 +159,6 @@ const ProfileScreen = ({ user }: Props) => {
             source={require("./../../assets/images/profile.jpeg")}
             style={styles.profileImage}
           />
-          <TouchableOpacity
-            style={styles.cameraButton}
-            onPress={handleOpenCamera}
-          >
-            <MaterialIcons name="camera-alt" size={20} color="white" />
-          </TouchableOpacity>
         </View>
 
         <View style={styles.userInfoContainer}>
@@ -233,11 +248,11 @@ const ProfileScreen = ({ user }: Props) => {
         <Text style={styles.logoutText}>Log Out</Text>
       </TouchableOpacity>
 
-      <CameraModal
+      {/* <CameraModal
         visible={cameraVisible}
         onClose={() => setCameraVisible(false)}
         onCapture={handleImageCapture}
-      />
+      /> */}
     </ScrollView>
   );
 };
@@ -249,6 +264,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f5f5f5",
     padding: 20,
+  },
+  loadingContainer: {
+    justifyContent: "center",
+    alignItems: "center",
   },
   header: {
     width: "100%",

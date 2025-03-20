@@ -8,7 +8,6 @@ import {
 } from "react-native";
 import { CategoryType } from "@/types/types";
 import { useItemsStore } from "@/stores/useSearchStore";
-import { filter } from "lodash";
 
 type CategoriesProps = {
   screenId: "home" | "favorites" | "myItems";
@@ -79,7 +78,7 @@ export default Categories;
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 15,
+    paddingVertical: 15,
   },
   title: {
     fontSize: 18,

@@ -31,6 +31,7 @@ export interface OtpScreenProps {
 export interface UserInfo {
   email: string;
   id: number;
+  profile_picture: string;
 }
 
 export interface faqItem {

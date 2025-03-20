@@ -37,18 +37,6 @@ const WelcomeScreen = (props: Props) => {
       alert("Failed to do OTP stuff");
     }
   };
-  // useEffect(() => {
-  //   const checkAuth = async () => {
-  //     const token = await AsyncStorage.getItem("authToken");
-  //     if (token) {
-  //       console.log("user already logged in");
-  //       router.replace("/(tabs)");
-  //     } else {
-  //       router.replace("/(auth)");
-  //     }
-  //   };
-  //   checkAuth();
-  // }, []);
   return (
     <>
       <Stack.Screen
@@ -120,14 +108,14 @@ const styles = StyleSheet.create({
     color: "gray",
   },
   btn: {
-    backgroundColor: Colors.primary,
+    backgroundColor: "#4b0082",
     paddingVertical: 10,
     paddingHorizontal: 18,
     borderRadius: 5,
     marginTop: 15,
   },
   btnTxt: {
-    color: Colors.white,
+    color: "white",
     fontSize: 16,
     fontWeight: "600",
     textAlign: "center",

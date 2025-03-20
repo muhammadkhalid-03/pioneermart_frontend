@@ -67,6 +67,7 @@ const SingleItem = ({ item, source }: Props) => {
           />
         )}
         <Image source={{ uri: item.image }} style={styles.itemImage} />
+        <View style={styles.myItemTag} />
         {showFavoritesIcon && route.name !== "additionalinfo/MyItems" ? (
           <TouchableOpacity
             style={styles.favBtn}
@@ -116,5 +117,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: "black",
+  },
+  myItemTag: {
+    width: 10,
+    height: 10,
+    backgroundColor: "#ffd700",
+    position: "absolute",
+    borderRadius: 100 / 2,
+    top: 20,
+    left: 10,
   },
 });

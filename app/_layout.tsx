@@ -9,6 +9,7 @@ import { SearchProvider } from "./contexts/SearchContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useSingleItemStore from "@/stores/singleItemStore";
 import { BackHandler } from "react-native";
+import { AppInitialier } from "@/components/AppInitializer";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -78,6 +79,7 @@ export default function RootLayout() {
     <AuthProvider>
       <SearchProvider>
         <FavoritesProvider>
+          <AppInitialier />
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
