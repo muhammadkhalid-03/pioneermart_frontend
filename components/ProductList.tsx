@@ -42,18 +42,27 @@ const ProductList = ({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>
-        {route.name === "index" ? "Latest" : "Your"}{" "}
-        {route.name === "favorites" ? "Favorites" : "Items"}
-      </Text>
       <FlatList
         data={items}
         renderItem={({ item }) => <SingleItem item={item} source={source} />}
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
         contentContainerStyle={styles.listContent}
-        columnWrapperStyle={{ justifyContent: "space-between" }} // Ensure even spacing
+        columnWrapperStyle={{ justifyContent: "space-between" }}
         showsVerticalScrollIndicator={false}
+        scrollEventThrottle={16}
+        ListHeaderComponent={() => (
+          <View style={styles.titleContainer}>
+            <Text style={styles.title}>
+              {route.name === "index" ? "Latest" : "Your"}{" "}
+              {route.name === "favorites" ? "Favorites" : "Items"}
+            </Text>
+            <View style={styles.myTimeTagContainer}>
+              <View style={styles.myItemTag} />
+              <Text>My Items</Text>
+            </View>
+          </View>
+        )}
       />
     </View>
   );
@@ -66,11 +75,30 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 10,
   },
+  titleContainer: {
+    flexDirection: "row",
+    // justifyContent: "center",
+  },
   title: {
     fontSize: 18,
     fontWeight: "bold",
     marginLeft: 5,
     marginBottom: 10,
+  },
+  myTimeTagContainer: {
+    position: "absolute",
+    top: 3,
+    right: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  myItemTag: {
+    width: 10,
+    height: 10,
+    backgroundColor: "#ffd700",
+    borderRadius: 100 / 2,
+    marginRight: 5, // Add spacing between the tag and text
   },
   listContent: {
     paddingBottom: 20,

@@ -35,21 +35,23 @@ const SingleItem = ({ item, source }: Props) => {
   const [isFavorited, setIsFavorited] = useState(item.is_favorited);
 
   const handleItemPress = () => {
+    //if coming from 'My Items' button, don't show favorites
     if (source === "myItems") {
       setShowFavoritesIcon(false);
-      router.push({
-        pathname: "/ItemDetails",
-        params: { item: JSON.stringify(item), source: source },
-      });
+      // router.push({
+      //   pathname: "/ItemDetails",
+      //   params: { item: JSON.stringify(item), source: source },
+      // });
+    } else {
+      setShowFavoritesIcon(true);
     }
-    setShowFavoritesIcon(true);
-    router.push({
-      pathname: "/ItemDetails",
-      params: { item: JSON.stringify(item) },
-    });
+    // router.push({
+    //   pathname: "/ItemDetails",
+    //   params: { item: JSON.stringify(item) },
+    // });
   };
 
-  // get the latest item state
+  // get the latest item state for favorite status
   const handleFavoriteToggle = async (item: ItemType) => {
     await toggleFavorite(item.id, authToken || "");
     setIsFavorited(!isFavorited);
@@ -69,7 +71,7 @@ const SingleItem = ({ item, source }: Props) => {
           route.name === "ItemDetails" && { width: width },
         ]}
       >
-        {isZoomVisible && (
+        {isZoomVisible && ( //zoom functionality
           <ZoomModal
             isVisible={isZoomVisible}
             onClose={() => setIsZoomVisible(false)}
@@ -77,23 +79,27 @@ const SingleItem = ({ item, source }: Props) => {
           />
         )}
         <Image source={{ uri: item.image }} style={styles.itemImage} />
-        {item.seller === userData?.id && <View style={styles.myItemTag} />}
-        {showFavoritesIcon && route.name !== "additionalinfo/MyItems" ? (
+        {
+          item.seller === userData?.id && <View style={styles.myItemTag} /> //only show tag if user is not the seller
+        }
+        {showFavoritesIcon && // bunch of conditions for whether or not to show favorites icon based on who's the seller
+        item.seller !== userData?.id &&
+        route.name !== "additionalinfo/MyItems" ? (
           <TouchableOpacity
             style={styles.favBtn}
-            onPress={() => handleFavoriteToggle(item)}
+            onPress={() => handleFavoriteToggle(item)} //press function for favorite button
           >
             <AntDesign
-              name={isFavorited ? "heart" : "hearto"}
+              name={isFavorited ? "heart" : "hearto"} // if the item is favorited show filled out icon
               size={22}
               color="black"
             />
           </TouchableOpacity>
         ) : null}
-        {route.name === "ItemDetails" ? null : (
+        {route.name === "ItemDetails" ? null : ( // if it's the Item Details page don't show the price cause it's being shown already
           <Text style={styles.title}>${item.price}</Text>
         )}
-        {route.name === "ItemDetails" ? null : (
+        {route.name === "ItemDetails" ? null : ( // if it's the Item Details page don't show the title cause it's being shown already
           <Text style={styles.title}>{item.title}</Text>
         )}
       </View>
