@@ -12,7 +12,6 @@ type HeaderProps = {
 const Header: React.FC<HeaderProps> = ({ screenId }) => {
   const insets = useSafeAreaInsets();
   const route = useRoute();
-  console.log("Route", route.name);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>

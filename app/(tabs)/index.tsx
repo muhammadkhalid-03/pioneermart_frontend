@@ -5,7 +5,6 @@ import ProductList from "@/components/ProductList";
 import Categories from "@/components/Categories";
 import { useAuth } from "../contexts/AuthContext";
 import { useItemsStore } from "@/stores/useSearchStore";
-import { ActivityIndicator } from "react-native";
 
 const HomeScreen = () => {
   const {

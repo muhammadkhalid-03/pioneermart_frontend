@@ -11,7 +11,6 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 import { MaterialIcons } from "@expo/vector-icons";
 import Foundation from "@expo/vector-icons/Foundation";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import CameraModal from "@/components/CameraModal";
 import { useAuth } from "../contexts/AuthContext";
 import { useRouter } from "expo-router";
 import { ScrollView } from "react-native";
@@ -23,8 +22,6 @@ const ProfileScreen = () => {
   const [permission, requestPermission] = useCameraPermissions();
   const insets = useSafeAreaInsets();
   const camera = useRef<CameraView>(null); //TODO: Implement camera feature to upload items
-  const [cameraVisible, setCameraVisible] = useState(false);
-  const [tempProfileImage, setTempProfileImage] = useState<string | null>(null);
   const { authToken, onLogout } = useAuth();
   const router = useRouter();
 
@@ -66,63 +63,6 @@ const ProfileScreen = () => {
     setIsLogoutVisible(false);
     console.log("Doesn't want to log out...");
   };
-
-  const handleOpenCamera = async () => {
-    if (!permission?.granted) {
-      const permissionResult = await requestPermission();
-      if (!permissionResult.granted) {
-        Alert.alert(
-          "Permission Required",
-          "You need to grant camera permission to take a profile picture",
-          [{ text: "OK" }]
-        );
-        return;
-      }
-    }
-    setCameraVisible(true);
-  };
-
-  // const getProfile = async () => {
-  //   try {
-  //     const cleanToken = authToken?.trim();
-  //     const URL = `${BASE_URL}/api/users/`;
-  //     const response = await axios.get(URL, {
-  //       headers: {
-  //         Authorization: `Bearer ${cleanToken}`,
-  //         "Content-Type": "application/json",
-  //         Accept: "application/json",
-  //       },
-  //     });
-
-  //     if (response.data && response.data.length > 0) {
-  //       console.log("UserProfile:", response.data[0]);
-  //       setUserData(response.data[0]);
-  //     } else {
-  //       console.error("No user data found in the response.");
-  //       Alert.alert("Error", "No user data found.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error getting user profile:", error);
-  //     Alert.alert("Error", "Failed to load profile. Please try again.");
-  //   }
-  // };
-
-  // const handleImageCapture = async (imageUri: string) => {
-  //   try {
-  //     console.log("profile.tsx: image captured:", imageUri);
-  //     setTempProfileImage(imageUri);
-  //     setCameraVisible(false);
-  //     await updateProfileImage(imageUri, authToken || "");
-  //     Alert.alert(
-  //       "Profile Image Updated",
-  //       "Your profile image has been updated."
-  //     );
-  //   } catch (error) {
-  //     Alert.alert("Error", "Failed to update profile image. Please try again.");
-  //   } finally {
-  //     setCameraVisible(false);
-  //   }
-  // };
 
   if (isLoading && !userData) {
     return (

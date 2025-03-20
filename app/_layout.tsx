@@ -8,7 +8,6 @@ import { FavoritesProvider } from "./contexts/FavoritesContext";
 import { SearchProvider } from "./contexts/SearchContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useSingleItemStore from "@/stores/singleItemStore";
-import { BackHandler } from "react-native";
 import { AppInitialier } from "@/components/AppInitializer";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -21,25 +20,10 @@ export default function RootLayout() {
   const { setShowFavoritesIcon } = useSingleItemStore();
   const pathname = usePathname();
 
-  // useEffect(() => {
-  //   const checkAuth = async () => {
-  //     const token = await AsyncStorage.getItem("authToken");
-  //     if (token) {
-  //       console.log("user already logged in");
-  //       router.replace("/(tabs)");
-  //     } else {
-  //       router.replace("/(auth)");
-  //     }
-  //   };
-  //   checkAuth();
-  // }, []);
   useEffect(() => {
     const checkAuth = async () => {
       const token = await AsyncStorage.getItem("authToken");
       if (!token) {
-        // router.replace({
-        //   pathname: "/(auth)"
-        // });
         router.replace("/(auth)");
       }
     };
@@ -47,22 +31,9 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
-      "hardwareBackPress",
-      () => {
-        // Return true to prevent default behavior
-        return true;
-      }
-    );
-
-    return () => backHandler.remove();
-  }, []);
-
-  useEffect(() => {
     if (!pathname.includes("MyItems") && !pathname.includes("ItemDetails")) {
       setShowFavoritesIcon(true);
     }
-    console.log("Pathname:", pathname);
   }, [pathname]);
 
   useEffect(() => {

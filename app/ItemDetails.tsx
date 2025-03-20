@@ -10,19 +10,16 @@ import Entypo from "@expo/vector-icons/Entypo";
 import { useState } from "react";
 import ItemPurchaseModal from "@/components/ItemPurchaseModal";
 import SingleItem from "@/components/SingleItem";
-import { useRoute } from "@react-navigation/native";
 import { useItemsStore } from "@/stores/useSearchStore";
 
 const width = Dimensions.get("window").width; // -40 b/c marginHorizontal in index.tsx is 20 so we need to reduce the width by 20x2
 
 const ItemDetails = () => {
-  const route = useRoute();
   const { item: itemString, source } = useLocalSearchParams(); // access the item parameter as a string
   const item = JSON.parse(itemString as string); // turn into JSON object for details page
   const { setIsReturningFromDetails } = useItemsStore();
 
   const [isVisible, setIsVisible] = useState(false);
-  console.log(route.name);
 
   const openModal = () => {
     setIsVisible(true);
@@ -32,11 +29,6 @@ const ItemDetails = () => {
 
   const closeModal = () => {
     setIsVisible(false);
-  };
-
-  const handleGoBack = () => {
-    setIsReturningFromDetails(true);
-    router.back();
   };
 
   return (
@@ -49,7 +41,10 @@ const ItemDetails = () => {
           headerLeft: () => (
             <TouchableOpacity
               style={{ padding: 8 }}
-              onPress={() => router.back()}
+              onPress={() => {
+                router.back();
+                console.log("navigating back...");
+              }}
             >
               <Entypo name="chevron-left" size={24} color="black" />
             </TouchableOpacity>
