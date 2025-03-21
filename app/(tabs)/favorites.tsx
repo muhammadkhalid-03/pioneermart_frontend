@@ -29,7 +29,11 @@ const FavoritesScreen = () => {
         }}
       />
       <Categories screenId={screenId} categories={categories} />
-      <ProductList items={filteredItems} isLoading={isLoading} />
+      <ProductList
+        items={filteredItems}
+        isLoading={isLoading}
+        source={"favorites"}
+      />
     </>
   );
 };

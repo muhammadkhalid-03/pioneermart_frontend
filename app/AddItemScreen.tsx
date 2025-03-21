@@ -17,6 +17,7 @@ import { router } from "expo-router";
 import { Picker } from "@react-native-picker/picker";
 import { useAuth } from "./contexts/AuthContext";
 import { UserInfo } from "@/types/types";
+import { PaginatedResponse } from "@/types/api";
 
 const CATEGORIES = [
   { label: "Electronics", value: "electronics", id: 3 },
@@ -57,16 +58,19 @@ const AddItemScreen = () => {
 
     try {
       const cleanToken = authToken.trim();
-      const response = await axios.get(`${BASE_URL}/api/users/`, {
-        headers: {
-          Authorization: `Bearer ${cleanToken}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      });
-
-      if (response.data && response.data.length > 0) {
-        setUserData(response.data[0]);
+      const response = await axios.get<PaginatedResponse<UserInfo>>(
+        `${BASE_URL}/api/users/`,
+        {
+          headers: {
+            Authorization: `Bearer ${cleanToken}`,
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        }
+      );
+      console.log("adding:", response.data.results);
+      if (response.data.results) {
+        setUserData(response.data.results[0]);
       } else {
         Alert.alert("Error", "No user data found.");
       }

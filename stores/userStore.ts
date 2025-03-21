@@ -2,12 +2,13 @@ import { create } from "zustand";
 import { UserInfo } from "@/types/types";
 import axios from "axios";
 import { BASE_URL } from "@/config";
+import { PaginatedResponse } from "@/types/api";
 
 interface UserState {
   userData: UserInfo | null;
   isLoading: boolean;
   error: string | null;
-  fetchUserData: (token: string) => Promise<void>;
+  fetchUserData: (token: string) => Promise<UserInfo[] | undefined>;
   updateUserData: (userData: Partial<UserInfo>, token: string) => Promise<void>;
   clearUserData: () => void;
 }
@@ -22,18 +23,17 @@ export const useUserStore = create<UserState>((set, get) => ({
       set({ isLoading: true, error: null });
       const cleanToken = token?.trim();
       const URL = `${BASE_URL}/api/users/`;
-      const response = await axios.get(URL, {
+      const response = await axios.get<PaginatedResponse<UserInfo>>(URL, {
         headers: {
           Authorization: `Bearer ${cleanToken}`,
           "Content-Type": "application/json",
           Accept: "application/json",
         },
       });
-
-      if (response.data && response.data.length > 0) {
-        console.log("User data gotten successfully:", response.data[0]);
-        set({ userData: response.data[0], isLoading: false });
-        return response.data[0];
+      if (response.data.results) {
+        console.log("User data:", response.data.results);
+        set({ userData: response.data.results[0], isLoading: false });
+        return response.data.results;
       } else {
         console.error("No user data found in the response.");
       }

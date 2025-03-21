@@ -1,10 +1,11 @@
 import { AuthContextType } from "@/app/contexts/AuthContext";
 import { BASE_URL } from "@/config";
-import { ItemType } from "@/types/types";
+import { PaginatedResponse } from "@/types/api";
+import { CategoryType, ItemType, ScreenId } from "@/types/types";
 import axios from "axios";
 import { create } from "zustand";
 
-type ScreenId = "home" | "myItems" | "favorites";
+// type ScreenId = "home" | "myItems" | "favorites";
 
 // interface for the state and actions of each screen
 interface ScreenState {
@@ -13,7 +14,10 @@ interface ScreenState {
   searchQuery: string; //query used to search thru items on a page
   selectedCategory: number | null; //category filter
   isLoading: boolean;
+  isLoadingMore: boolean;
   lastUpdated: number; // Timestamp to track when data was last refreshed
+  nextPage: string | null; //URL for the next page of the results
+  hasMore: boolean; //flag to indicate if there are more items to show
 }
 
 //main store interface
@@ -32,6 +36,7 @@ interface ItemsStoreState {
   isReturningFromDetails: boolean;
   loadItems: (screenId: ScreenId, authToken: string) => Promise<void>;
   loadCategories: (authToken: string) => Promise<void>;
+  loadMoreItems: (screenId: ScreenId, authToken: string) => Promise<void>;
 
   //search actions
   performSearch: (
@@ -53,7 +58,10 @@ const initialScreenState: ScreenState = {
   searchQuery: "",
   selectedCategory: null,
   isLoading: false,
+  isLoadingMore: false,
   lastUpdated: 0,
+  nextPage: null,
+  hasMore: false,
 };
 
 export const useItemsStore = create<ItemsStoreState>((set, get) => ({
@@ -113,34 +121,39 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
       }
 
       const cleanToken = authToken?.trim(); //trim to ensure token is correct
-      const response = await axios.get(`${BASE_URL}/${endpoint}`, {
-        //api call
-        headers: {
-          Authorization: `Bearer ${cleanToken}`,
-          "Content-Type": "application/json",
-        },
-        // Add cache-busting parameter to ensure that we aren't using previously stored data
-        params: { _t: Date.now() },
-      });
-
+      const response = await axios.get<PaginatedResponse<ItemType>>(
+        `${BASE_URL}/${endpoint}`,
+        {
+          //api call
+          headers: {
+            Authorization: `Bearer ${cleanToken}`,
+            "Content-Type": "application/json",
+          },
+          // Add cache-busting parameter to ensure that we aren't using previously stored data
+          params: { _t: Date.now() },
+        }
+      );
+      console.log("here");
       set((state) => ({
         //take state of screens
         screens: {
           ...state.screens, //create shallow copy of screens object
           [screenId]: {
             ...state.screens[screenId], //create shallow copy of specific screen
-            items: response.data, //set items on that screen to response.data
+            items: response.data.results, //set items on that screen to response.data
             filteredItems:
               //if category is null, return everything else return matching items for our screen
               state.screens[screenId].selectedCategory === null //represents 'All' option in category bar
-                ? response.data
-                : response.data.filter(
+                ? response.data.results
+                : response.data.results.filter(
                     (item: ItemType) =>
                       Number(item.category) ===
                       state.screens[screenId].selectedCategory
                   ),
             isLoading: false,
             lastUpdated: Date.now(),
+            nextPage: response.data.next, //store the next page URL
+            hasMore: response.data.next !== null, //set hasMore flag to true if ther's more data
           },
         },
       }));
@@ -198,20 +211,25 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
       }
 
       const cleanToken = authToken?.trim();
-      const response = await axios.get(`${BASE_URL}/${endpoint}`, {
-        headers: {
-          Authorization: `Bearer ${cleanToken}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await axios.get<PaginatedResponse<ItemType>>(
+        `${BASE_URL}/${endpoint}`,
+        {
+          headers: {
+            Authorization: `Bearer ${cleanToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
       set((state) => ({
         screens: {
           ...state.screens,
           [screenId]: {
             ...state.screens[screenId],
-            items: response.data,
-            filteredItems: response.data,
+            items: response.data.results,
+            filteredItems: response.data.results,
             isLoading: false,
+            nextPage: response.data.next,
+            hasMore: response.data.next !== null,
           },
         },
       }));
@@ -228,6 +246,78 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
             items: [],
             filteredItems: [],
             isLoading: false,
+            nextPage: null,
+            hasMore: false,
+          },
+        },
+      }));
+    }
+  },
+
+  loadMoreItems: async (screenId: ScreenId, authToken: string) => {
+    //get the current screen state
+    const currentScreen = get().screens[screenId];
+
+    //if there's no next page or already loading more then return early
+    if (!currentScreen.nextPage || currentScreen.isLoadingMore) {
+      return;
+    }
+    //set screen to 'loading more' state
+    set((state) => ({
+      screens: {
+        ...state.screens,
+        [screenId]: {
+          ...state.screens[screenId],
+          isLoadingMore: true,
+        },
+      },
+    }));
+    try {
+      const cleanToken = authToken?.trim();
+      const response = await axios.get<PaginatedResponse<ItemType>>(
+        `${currentScreen.nextPage}`,
+        {
+          headers: {
+            Authorization: `Bearer ${cleanToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      //combine existing items with new items
+      const updatedItems = [...currentScreen.items, ...response.data.results];
+
+      //apply category filter to the updated items if needed
+      const updatedFilteredItems =
+        currentScreen.selectedCategory === null
+          ? updatedItems
+          : updatedItems.filter(
+              (item: ItemType) =>
+                Number(item.category) === currentScreen.selectedCategory
+            );
+
+      //update screen state with new items
+      set((state) => ({
+        screens: {
+          ...state.screens,
+          [screenId]: {
+            ...state.screens[screenId],
+            items: updatedItems,
+            filteredItems: updatedFilteredItems,
+            isLoadingMore: false,
+            nextPage: response.data.next,
+            hasMore: response.data.next !== null,
+          },
+        },
+      }));
+    } catch (error) {
+      console.error(`Error loading more items for ${screenId}:`, error);
+      set((state) => ({
+        screens: {
+          ...state.screens,
+          [screenId]: {
+            ...state.screens[screenId],
+            isLoadingMore: false,
           },
         },
       }));
@@ -243,13 +333,17 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
   loadCategories: async (authToken: string) => {
     try {
       const cleanToken = authToken?.trim();
-      const response = await axios.get(`${BASE_URL}/api/categories/`, {
-        headers: {
-          Authorization: `Bearer ${cleanToken}`,
-          "Content-Type": "application/json",
-        },
-      });
-      set({ categories: response.data });
+      const response = await axios.get<PaginatedResponse<CategoryType>>(
+        `${BASE_URL}/api/categories/`,
+        {
+          headers: {
+            Authorization: `Bearer ${cleanToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("Categories in loadCategories:", response.data.results);
+      set({ categories: response.data["results"] });
     } catch (error) {
       set({ categories: [] });
     }
@@ -284,23 +378,26 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
       const cleanToken = authToken.authToken?.trim(); //authToken is AuthContextType, it has a string field authToken which we want
 
       //different endpoints based on screen
-      let endpoint = "api/items/search_items/";
+      let endpoint = `api/items/search_items/?q=${query}`;
       let params: Record<string, string> = { q: query }; //query to include in the request
 
       if (screenId === "favorites") {
-        endpoint = "api/items/search_favorites/";
+        endpoint = `api/items/search_favorites/?q=${query}`;
       } else if (screenId === "myItems") {
-        endpoint = "api/items/search_my_items/";
+        endpoint = `api/items/search_my_items/?q${query}`;
       }
       console.log("This is the endpoint:", endpoint);
-      const response = await axios.get(`${BASE_URL}/${endpoint}`, {
-        headers: {
-          Authorization: `Bearer ${cleanToken}`,
-          "Content-Type": "application/json",
-        },
-        params, //includes the search query defined above
-      });
-      const results = response.data;
+      const response = await axios.get<PaginatedResponse<ItemType>>(
+        `${BASE_URL}/${endpoint}`,
+        {
+          headers: {
+            Authorization: `Bearer ${cleanToken}`,
+            "Content-Type": "application/json",
+          },
+          params, //includes the search query defined above
+        }
+      );
+      const results = response.data.results;
       //get the selected category for the current screen so that the selected category applies to search results as well
       const { selectedCategory } = get().screens[screenId];
 
@@ -321,6 +418,8 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
             items: results,
             filteredItems: filteredResults,
             isLoading: false,
+            nextPage: response.data.next,
+            hasMore: response.data.next !== null,
           },
         },
       }));
@@ -333,6 +432,8 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
           [screenId]: {
             ...state.screens[screenId],
             isLoading: false,
+            nextPage: null,
+            hasMore: false,
           },
         },
       }));

@@ -44,3 +44,5 @@ export interface SingleItemProps {
   item: ItemType;
   showFavoritesIcon?: boolean;
 }
+
+export type ScreenId = "home" | "myItems" | "favorites";

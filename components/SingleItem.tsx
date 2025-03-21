@@ -13,7 +13,7 @@ import { useRoute } from "@react-navigation/native";
 import { useItemsStore } from "@/stores/useSearchStore";
 import { useAuth } from "@/app/contexts/AuthContext";
 import useSingleItemStore from "@/stores/singleItemStore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ZoomModal from "./ZoomModal";
 import { useUserStore } from "@/stores/userStore";
 
@@ -38,23 +38,23 @@ const SingleItem = ({ item, source }: Props) => {
     //if coming from 'My Items' button, don't show favorites
     if (source === "myItems") {
       setShowFavoritesIcon(false);
-      // router.push({
-      //   pathname: "/ItemDetails",
-      //   params: { item: JSON.stringify(item), source: source },
-      // });
+      router.push({
+        pathname: "/ItemDetails",
+        params: { item: JSON.stringify(item), source: source },
+      });
     } else {
       setShowFavoritesIcon(true);
     }
-    // router.push({
-    //   pathname: "/ItemDetails",
-    //   params: { item: JSON.stringify(item) },
-    // });
+    router.push({
+      pathname: "/ItemDetails",
+      params: { item: JSON.stringify(item) },
+    });
   };
 
   // get the latest item state for favorite status
-  const handleFavoriteToggle = async (item: ItemType) => {
+  const handleFavoriteToggle = async () => {
+    setIsFavorited(!item.is_favorited);
     await toggleFavorite(item.id, authToken || "");
-    setIsFavorited(!isFavorited);
   };
 
   return (
@@ -87,7 +87,7 @@ const SingleItem = ({ item, source }: Props) => {
         route.name !== "additionalinfo/MyItems" ? (
           <TouchableOpacity
             style={styles.favBtn}
-            onPress={() => handleFavoriteToggle(item)} //press function for favorite button
+            onPress={handleFavoriteToggle} //press function for favorite button
           >
             <AntDesign
               name={isFavorited ? "heart" : "hearto"} // if the item is favorited show filled out icon
