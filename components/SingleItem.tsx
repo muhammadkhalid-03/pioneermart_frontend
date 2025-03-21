@@ -26,7 +26,7 @@ const width = Dimensions.get("window").width - 40; // -40 b/c marginHorizontal i
 
 const SingleItem = ({ item, source }: Props) => {
   const route = useRoute();
-  const { toggleFavorite, getItemById } = useItemsStore();
+  const { toggleFavorite } = useItemsStore();
   const { authToken } = useAuth();
   const { showFavoritesIcon, setShowFavoritesIcon } = useSingleItemStore();
   const { userData } = useUserStore();

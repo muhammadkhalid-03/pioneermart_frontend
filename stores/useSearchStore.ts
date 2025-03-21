@@ -8,10 +8,10 @@ type ScreenId = "home" | "myItems" | "favorites";
 
 // interface for the state and actions of each screen
 interface ScreenState {
-  items: ItemType[];
-  filteredItems: ItemType[];
-  searchQuery: string;
-  selectedCategory: number | null;
+  items: ItemType[]; //all the items that could appear on the screen
+  filteredItems: ItemType[]; //items that actually appear on the screen
+  searchQuery: string; //query used to search thru items on a page
+  selectedCategory: number | null; //category filter
   isLoading: boolean;
   lastUpdated: number; // Timestamp to track when data was last refreshed
 }
@@ -41,7 +41,6 @@ interface ItemsStoreState {
   ) => Promise<void>;
   filterByCategory: (screenId: ScreenId, categoryId: number | null) => void;
   clearSearch: (screenId: ScreenId) => void;
-  getItemById: (id: number) => ItemType | undefined;
 
   //toggling favorites function
   toggleFavorite: (itemId: number, authToken: string) => Promise<void>;
@@ -72,36 +71,16 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
   //set active screen
   setActiveScreen: (screenId) => set({ activeScreen: screenId }),
 
-  getItemById: (itemId: number) => {
-    const state = get();
-
-    // First check the active screen
-    const activeScreenItems = state.screens[state.activeScreen].items;
-    const itemFromActiveScreen = activeScreenItems.find(
-      (item) => item.id === itemId
-    );
-    if (itemFromActiveScreen) {
-      return itemFromActiveScreen;
-    }
-
-    // If not found in active screen, check all screens
-    for (const screenId of ["home", "favorites", "myItems"] as ScreenId[]) {
-      if (screenId === state.activeScreen) continue; // Skip active screen as we already checked
-
-      const screenItems = state.screens[screenId].items;
-      const item = screenItems.find((item) => item.id === itemId);
-      if (item) {
-        return item;
-      }
-    }
-
-    // If item not found in any screen
-    return undefined;
-  },
-
+  /**
+   * Function to refresh items on screen.
+   * @param {ScreenId} screenId - The screen that we want the items for
+   * @param {string} authToken - User's authentication token to be provided in axios request
+   * @example
+   *  await refreshItems('home', authToken (from useAuth Context))
+   */
   refreshItems: async (screenId: ScreenId, authToken: string) => {
-    const currentScreen = get().screens[screenId];
-    const now = Date.now();
+    const currentScreen = get().screens[screenId]; //get the current using screenId
+    const now = Date.now(); //get current time
 
     // Only refresh if it's been more than 60 seconds since last update or if no items exist
     if (
@@ -112,11 +91,12 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
     }
     // Update loading state for a specific screen
     set((state) => ({
+      //takes the current state as parameter
       screens: {
-        ...state.screens,
+        ...state.screens, //create a shallow copy of the screens object
         [screenId]: {
-          ...state.screens[screenId],
-          isLoading: true,
+          ...state.screens[screenId], //create a shallow copy of the specified screen
+          isLoading: true, //set isLoading to true on that screen
         },
       },
     }));
@@ -132,24 +112,27 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
         endpoint = "api/items/my_items/";
       }
 
-      const cleanToken = authToken?.trim();
+      const cleanToken = authToken?.trim(); //trim to ensure token is correct
       const response = await axios.get(`${BASE_URL}/${endpoint}`, {
+        //api call
         headers: {
           Authorization: `Bearer ${cleanToken}`,
           "Content-Type": "application/json",
         },
-        // Add cache-busting parameter
+        // Add cache-busting parameter to ensure that we aren't using previously stored data
         params: { _t: Date.now() },
       });
 
       set((state) => ({
+        //take state of screens
         screens: {
-          ...state.screens,
+          ...state.screens, //create shallow copy of screens object
           [screenId]: {
-            ...state.screens[screenId],
-            items: response.data,
+            ...state.screens[screenId], //create shallow copy of specific screen
+            items: response.data, //set items on that screen to response.data
             filteredItems:
-              state.screens[screenId].selectedCategory === null
+              //if category is null, return everything else return matching items for our screen
+              state.screens[screenId].selectedCategory === null //represents 'All' option in category bar
                 ? response.data
                 : response.data.filter(
                     (item: ItemType) =>
@@ -177,8 +160,14 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
     }
   },
 
-  //load items for a specific screen
-  loadItems: async (screenId, authToken) => {
+  /**
+   * Function to load items on a specified screen when initially rendering the screen.
+   * @param {ScreenId} screenId - The screen that we want the items for
+   * @param {string} authToken - User's authentication token to be provided in axios request
+   * @example
+   *  loadItems(screenId, authToken || "");
+   */
+  loadItems: async (screenId: ScreenId, authToken: string) => {
     const currentScreen = get().screens[screenId];
     const now = Date.now();
     if (
@@ -245,8 +234,13 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
     }
   },
 
-  //load categories (shared across screens)
-  loadCategories: async (authToken) => {
+  /**
+   * Function to load categories on a specified screen when initially rendering the screen. It loads all the categories in database
+   * @param {string} authToken - User's authentication token to be provided in axios request
+   * @example
+   *  loadCategories(screenId, authToken || "");
+   */
+  loadCategories: async (authToken: string) => {
     try {
       const cleanToken = authToken?.trim();
       const response = await axios.get(`${BASE_URL}/api/categories/`, {
@@ -261,22 +255,33 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
     }
   },
 
-  //perform search for a specific screen
-  performSearch: async (screenId, query, authToken) => {
+  /**
+   * Function to search for items on a specified screen
+   * @param {ScreenId} screenId - The screen that we want the items for
+   * @param {string} query - User's search query
+   * @param {AuthContextType} authToken - User's authentication token to be provided in axios request
+   * @example
+   *  performSearch(screenId, localQuery, authToken || null);
+   */
+  performSearch: async (
+    screenId: ScreenId,
+    query: string,
+    authToken: AuthContextType
+  ) => {
     //update search query and loading state
     set((state) => ({
       screens: {
         ...state.screens,
         [screenId]: {
           ...state.screens[screenId],
-          searchQuery: query,
+          searchQuery: query, //need this line cause otherwise it'll keep the same search query for all screens
           isLoading: true,
         },
       },
     }));
 
     try {
-      const cleanToken = authToken.authToken?.trim();
+      const cleanToken = authToken.authToken?.trim(); //authToken is AuthContextType, it has a string field authToken which we want
 
       //different endpoints based on screen
       let endpoint = "api/items/search_items/";
@@ -293,9 +298,10 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
           Authorization: `Bearer ${cleanToken}`,
           "Content-Type": "application/json",
         },
-        params,
+        params, //includes the search query defined above
       });
       const results = response.data;
+      //get the selected category for the current screen so that the selected category applies to search results as well
       const { selectedCategory } = get().screens[screenId];
 
       //filter results by category if one is selected
@@ -333,8 +339,14 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
     }
   },
 
-  // Filter by category for a specific screen
-  filterByCategory: (screenId, categoryId) => {
+  /**
+   * Function to filter items by category
+   * @param {ScreenId} screenId - The screen that we want the items for
+   * @param {number} categoryId - The category that we want to filter for
+   * @example
+   *  filterByCategory(screenId, category.id)
+   */
+  filterByCategory: (screenId: ScreenId, categoryId: number | null) => {
     const state = get(); //get the current state
     const screenState = state.screens[screenId];
 
@@ -344,7 +356,7 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
         ...state.screens,
         [screenId]: {
           ...state.screens[screenId],
-          selectedCategory: categoryId,
+          selectedCategory: categoryId, //
         },
       },
     }));
@@ -378,8 +390,14 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
       }));
     }
   },
-  clearSearch: (screenId) => {
-    const state = get();
+
+  /**
+   * Function to clear the search results.
+   * @param {ScreenId} screenId - The screen that we want to clear the items for
+   * @example
+   *  clearSearch(screenId);
+   */
+  clearSearch: (screenId: ScreenId) => {
     // Reset search query
     set((state) => ({
       screens: {
@@ -395,8 +413,14 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
     get().loadItems(screenId, ""); //empty token will be replaced with real one in the component
   },
 
-  //toggle favorite status of an item (specific to home screen)
-  toggleFavorite: async (itemId, authToken) => {
+  /**
+   * Function to make an item a favorite
+   * @param {number} itemId - The item that needs to be favorited
+   * @param {string} authToken - User's authentication token
+   * @example
+   *  await toggleFavorite(item.id, authToken || "");
+   */
+  toggleFavorite: async (itemId: number, authToken: string) => {
     try {
       const cleanToken = authToken?.trim();
       const URL = `${BASE_URL}/api/items/${itemId}/toggle_favorite/`;
@@ -412,11 +436,10 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
         }
       );
 
-      //update both home and favorites screens
-      //first update home screen items
+      // mark is_favorited property of item if id matches. This just finds the item to favorite and updates on the frontend for user
       const homeScreenItems = get().screens.home.items.map((item) =>
         item.id === itemId
-          ? { ...item, is_favorited: !item.is_favorited }
+          ? { ...item, is_favorited: !item.is_favorited } //conditional
           : item
       );
 
@@ -440,7 +463,7 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
           },
         },
       }));
-      get().loadItems("home", authToken);
+      get().loadItems("home", authToken); //reload home screen after toggling
       //reload favorites after toggling
       get().loadItems("favorites", authToken);
     } catch (error) {

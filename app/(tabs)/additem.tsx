@@ -158,7 +158,7 @@ const AddItemScreen = () => {
       const formDataObj = createFormData();
       const cleanToken = authToken?.trim();
 
-      await axios.post(`${BASE_URL}/api/items/create_item/`, formDataObj, {
+      await axios.post(`${BASE_URL}/api/items/`, formDataObj, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${cleanToken}`,
