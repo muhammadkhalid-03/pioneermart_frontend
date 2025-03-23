@@ -19,13 +19,13 @@ const FAQs = () => {
       id: 1,
       question: "How do I edit my account?",
       answer:
-        "To create an account, tap on the Profile tab and select 'Sign Up'. Fill in your details and follow the instructions to complete your registration.",
+        "The only part of your account that you can edit is your preferred payment method, pronouns, and preferred name.",
     },
     {
       id: 2,
-      question: "How do I reset my password?",
+      question: "Do I need to have a username or password to access the app?",
       answer:
-        "Go to the login screen and tap on 'Forgot Password'. Enter your email address and follow the instructions sent to your email to reset your password.",
+        "No, you only enter your Grinnell email which we verify on our end. We didn't want users to have to constantly enter their email and password because it's really frustrating",
     },
     {
       id: 3,
@@ -37,13 +37,19 @@ const FAQs = () => {
       id: 4,
       question: "What payment methods do you accept?",
       answer:
-        "We accept credit cards, debit cards, PayPal, and mobile payment options such as Apple Pay and Google Pay.",
+        "We don't support payments currently though we might introduce the feature in the future. For now, you can go ahead and click 'Purchase Request' to notify the seller that you're interested in their item and they will reach out to you.",
     },
     {
       id: 5,
-      question: "Can I change my shipping address?",
+      question: "Once I send a Purchase Request, how do I get the item?",
       answer:
-        "Yes, you can update your shipping address in your profile settings or during checkout before finalizing your order.",
+        "When you click the 'Purchase Request' button, the seller is immediately notified. The seller will then contact you to finalize the price and meeting location.",
+    },
+    {
+      id: 6,
+      question: "What happens if the seller doesn't contact me or forgets?",
+      answer:
+        "If the seller doesn't reach out to you within 48 hours, you can contact them through their Grinnell email.",
     },
   ];
 
