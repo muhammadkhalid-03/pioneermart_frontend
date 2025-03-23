@@ -22,7 +22,7 @@ type Props = {
   source?: string;
 };
 
-const width = Dimensions.get("window").width - 40; // -40 b/c marginHorizontal in index.tsx is 20 so we need to reduce the width by 20x2
+const width = Dimensions.get("window").width - 40;
 
 const SingleItem = ({ item, source }: Props) => {
   const route = useRoute();
@@ -31,11 +31,16 @@ const SingleItem = ({ item, source }: Props) => {
   const { showFavoritesIcon, setShowFavoritesIcon } = useSingleItemStore();
   const { userData } = useUserStore();
 
+  // Subscribe to the active screen and get updated items
+  const activeScreen = useItemsStore((state) => state.activeScreen);
+  const items = useItemsStore((state) => state.screens[activeScreen].items);
+
+  // Get the latest version of this item from the store
+  const currentItem = items.find((i) => i.id === item.id) || item;
+
   const [isZoomVisible, setIsZoomVisible] = useState(false);
-  const [isFavorited, setIsFavorited] = useState(item.is_favorited);
 
   const handleItemPress = () => {
-    //if coming from 'My Items' button, don't show favorites
     if (source === "myItems") {
       setShowFavoritesIcon(false);
       router.push({
@@ -44,16 +49,28 @@ const SingleItem = ({ item, source }: Props) => {
       });
     } else {
       setShowFavoritesIcon(true);
+      router.push({
+        pathname: "/ItemDetails",
+        params: { item: JSON.stringify(item) },
+      });
     }
-    router.push({
-      pathname: "/ItemDetails",
-      params: { item: JSON.stringify(item) },
-    });
   };
 
-  // get the latest item state for favorite status
+  // Get all items from all screens to find the most up-to-date version
+  const homeItems = useItemsStore((state) => state.screens.home.items);
+  const favoritesItems = useItemsStore(
+    (state) => state.screens.favorites.items
+  );
+  const myItemsItems = useItemsStore((state) => state.screens.myItems.items);
+
+  // Find the latest version of this item in any screen
+  const latestItem =
+    homeItems.find((i) => i.id === item.id) ||
+    favoritesItems.find((i) => i.id === item.id) ||
+    myItemsItems.find((i) => i.id === item.id) ||
+    item;
+
   const handleFavoriteToggle = async () => {
-    setIsFavorited(!item.is_favorited);
     await toggleFavorite(item.id, authToken || "");
   };
 
@@ -63,7 +80,7 @@ const SingleItem = ({ item, source }: Props) => {
         route.name === "ItemDetails"
           ? () => setIsZoomVisible(true)
           : handleItemPress
-      } //if on ItemDetails then do nothing
+      }
     >
       <View
         style={[
@@ -71,36 +88,36 @@ const SingleItem = ({ item, source }: Props) => {
           route.name === "ItemDetails" && { width: width },
         ]}
       >
-        {isZoomVisible && ( //zoom functionality
+        {isZoomVisible && (
           <ZoomModal
             isVisible={isZoomVisible}
             onClose={() => setIsZoomVisible(false)}
-            item={item}
+            item={currentItem} // Use the updated item
           />
         )}
-        <Image source={{ uri: item.image }} style={styles.itemImage} />
-        {
-          item.seller === userData?.id && <View style={styles.myItemTag} /> //only show tag if user is not the seller
-        }
-        {showFavoritesIcon && // bunch of conditions for whether or not to show favorites icon based on who's the seller
-        item.seller !== userData?.id &&
+        <Image source={{ uri: currentItem.image }} style={styles.itemImage} />
+        {currentItem.seller === userData?.id && (
+          <View style={styles.myItemTag} />
+        )}
+        {showFavoritesIcon &&
+        currentItem.seller !== userData?.id &&
         route.name !== "additionalinfo/MyItems" ? (
           <TouchableOpacity
             style={styles.favBtn}
-            onPress={handleFavoriteToggle} //press function for favorite button
+            onPress={handleFavoriteToggle}
           >
             <AntDesign
-              name={isFavorited ? "heart" : "hearto"} // if the item is favorited show filled out icon
+              name={latestItem.is_favorited ? "heart" : "hearto"} // Use currentItem from store
               size={22}
               color="black"
             />
           </TouchableOpacity>
         ) : null}
-        {route.name === "ItemDetails" ? null : ( // if it's the Item Details page don't show the price cause it's being shown already
-          <Text style={styles.title}>${item.price}</Text>
+        {route.name === "ItemDetails" ? null : (
+          <Text style={styles.title}>${currentItem.price}</Text>
         )}
-        {route.name === "ItemDetails" ? null : ( // if it's the Item Details page don't show the title cause it's being shown already
-          <Text style={styles.title}>{item.title}</Text>
+        {route.name === "ItemDetails" ? null : (
+          <Text style={styles.title}>{currentItem.title}</Text>
         )}
       </View>
     </TouchableOpacity>
@@ -108,6 +125,8 @@ const SingleItem = ({ item, source }: Props) => {
 };
 
 export default SingleItem;
+
+// Styles remain unchanged
 
 const styles = StyleSheet.create({
   container: {

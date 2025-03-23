@@ -22,17 +22,17 @@ const HomeScreen = () => {
   const { authToken } = useAuth(); //auth context
   const { isReturningFromDetails, setIsReturningFromDetails } = useItemsStore();
 
-  useFocusEffect(
-    useCallback(() => {
-      const refreshData = async () => {
-        if (authToken && !isReturningFromDetails) {
-          await refreshItems(screenId, authToken);
-        }
-        setIsReturningFromDetails(false); // reset flag after refreshing data
-      };
-      refreshData();
-    }, [authToken, isReturningFromDetails])
-  );
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     const refreshData = async () => {
+  //       if (authToken && !isReturningFromDetails) {
+  //         await refreshItems(screenId, authToken);
+  //       }
+  //       setIsReturningFromDetails(false); // reset flag after refreshing data
+  //     };
+  //     refreshData();
+  //   }, [authToken, isReturningFromDetails])
+  // );
 
   // Load items and categories when component mounts
   useEffect(() => {

@@ -92,7 +92,7 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
 
     // Only refresh if it's been more than 60 seconds since last update or if no items exist
     if (
-      now - currentScreen.lastUpdated < 60000 &&
+      now - currentScreen.lastUpdated < 5000 &&
       currentScreen.items.length > 0
     ) {
       return;
@@ -525,6 +525,33 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
     try {
       const cleanToken = authToken?.trim();
       const URL = `${BASE_URL}/api/items/${itemId}/toggle_favorite/`;
+
+      // First determine the current favorite status from the item in any screen
+      let currentFavoriteStatus = false;
+      let currentItem: ItemType | undefined;
+      const state = get();
+
+      // Check if item exists in any screen to get its current status and details
+      for (const screenKey of ["home", "favorites", "myItems"] as ScreenId[]) {
+        const item = state.screens[screenKey].items.find(
+          (item) => item.id === itemId
+        );
+        if (item) {
+          currentFavoriteStatus = item.is_favorited;
+          currentItem = item;
+          break;
+        }
+      }
+
+      if (!currentItem) {
+        console.error("Item not found in any screen");
+        return;
+      }
+
+      // Toggle the status - calculate new status ahead of time
+      const newFavoriteStatus = !currentFavoriteStatus;
+
+      // Make the API call
       await axios.post(
         URL,
         {},
@@ -537,36 +564,78 @@ export const useItemsStore = create<ItemsStoreState>((set, get) => ({
         }
       );
 
-      // mark is_favorited property of item if id matches. This just finds the item to favorite and updates on the frontend for user
-      const homeScreenItems = get().screens.home.items.map((item) =>
-        item.id === itemId
-          ? { ...item, is_favorited: !item.is_favorited } //conditional
-          : item
-      );
+      // Now update all screens with the known new status
+      set((state) => {
+        const updatedScreens = { ...state.screens };
 
-      //update home screen state
-      set((state) => ({
-        //take the current state as parameter
-        screens: {
-          //entire thing updates screens object within the state
-          ...state.screens, //creates a copy of existing screens object
-          home: {
-            ...state.screens.home, //creates a copy of the existing home object to update it
-            items: homeScreenItems, //sets items property of home screen's state to homeScreenItems
-            filteredItems:
-              state.screens.home.selectedCategory === null
-                ? homeScreenItems
-                : homeScreenItems.filter(
-                    (item) =>
-                      Number(item.category) ===
-                      state.screens.home.selectedCategory
+        // Update existing items in each screen
+        (["home", "favorites", "myItems"] as ScreenId[]).forEach(
+          (screenKey) => {
+            const screen = updatedScreens[screenKey];
+
+            // Update items array with the new status
+            const updatedItems = screen.items.map((item) =>
+              item.id === itemId
+                ? { ...item, is_favorited: newFavoriteStatus }
+                : item
+            );
+
+            // Update filtered items array with the new status
+            const updatedFilteredItems = screen.filteredItems.map((item) =>
+              item.id === itemId
+                ? { ...item, is_favorited: newFavoriteStatus }
+                : item
+            );
+
+            // Handle special cases for the favorites screen
+            if (screenKey === "favorites") {
+              if (!newFavoriteStatus) {
+                // If unfavoriting, remove from favorites screen
+                updatedScreens[screenKey] = {
+                  ...screen,
+                  items: updatedItems.filter((item) => item.id !== itemId),
+                  filteredItems: updatedFilteredItems.filter(
+                    (item) => item.id !== itemId
                   ),
-          },
-        },
-      }));
-      get().loadItems("home", authToken); //reload home screen after toggling
-      //reload favorites after toggling
-      get().loadItems("favorites", authToken);
+                };
+              } else if (
+                newFavoriteStatus &&
+                !screen.items.some((item) => item.id === itemId)
+              ) {
+                // If favoriting AND the item isn't already in favorites screen, add it
+                // This is the key part that was missing
+                const itemToAdd = { ...currentItem!, is_favorited: true };
+
+                updatedScreens[screenKey] = {
+                  ...screen,
+                  items: [itemToAdd, ...screen.items],
+                  filteredItems:
+                    screen.selectedCategory === null ||
+                    Number(itemToAdd.category) === screen.selectedCategory
+                      ? [itemToAdd, ...screen.filteredItems]
+                      : screen.filteredItems,
+                };
+              } else {
+                // Just update status
+                updatedScreens[screenKey] = {
+                  ...screen,
+                  items: updatedItems,
+                  filteredItems: updatedFilteredItems,
+                };
+              }
+            } else {
+              // For non-favorites screens, just update the items
+              updatedScreens[screenKey] = {
+                ...screen,
+                items: updatedItems,
+                filteredItems: updatedFilteredItems,
+              };
+            }
+          }
+        );
+
+        return { screens: updatedScreens };
+      });
     } catch (error) {
       console.log("Error toggling favorite:", error);
     }
