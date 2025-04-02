@@ -24,14 +24,7 @@ export default function TabLayout() {
         name="additem"
         options={{
           title: "Add Item",
-          tabBarIcon: () => (
-            <Ionicons
-              name="add"
-              size={24}
-              color="black"
-              // onPress={() => router.push("/AddItemScreen")}
-            />
-          ),
+          tabBarIcon: () => <Ionicons name="add" size={24} color="black" />,
         }}
       />
       <Tabs.Screen

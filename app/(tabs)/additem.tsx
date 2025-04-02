@@ -19,6 +19,7 @@ import { Picker } from "@react-native-picker/picker";
 import { UserInfo } from "@/types/types";
 import { useAuth } from "../contexts/AuthContext";
 import { PaginatedResponse } from "@/types/api";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const CATEGORIES = [
   { label: "Electronics", value: "electronics", id: 3 },
@@ -41,6 +42,7 @@ const AddItemScreen = () => {
   const [loading, setLoading] = useState(false);
   const [userData, setUserData] = useState<UserInfo>();
   const { authToken } = useAuth();
+  const insets = useSafeAreaInsets();
 
   const updateFormField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -180,7 +182,7 @@ const AddItemScreen = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { paddingTop: insets.top }]}>
       <Text style={styles.title}>Add New Item</Text>
 
       <View style={styles.formGroup}>
