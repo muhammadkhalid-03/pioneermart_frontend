@@ -4,12 +4,18 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import Entypo from "@expo/vector-icons/Entypo";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ItemPurchaseModal from "@/components/ItemPurchaseModal";
 import SingleItem from "@/components/SingleItem";
+import { useAuth } from "./contexts/AuthContext";
+import axios from "axios";
+import { BASE_URL } from "@/config";
+import useSingleItemStore from "@/stores/singleItemStore";
+import { useUserStore } from "@/stores/userStore";
 
 const width = Dimensions.get("window").width; // -40 b/c marginHorizontal in index.tsx is 20 so we need to reduce the width by 20x2
 
@@ -18,6 +24,39 @@ const ItemDetails = () => {
   const item = JSON.parse(itemString as string); // turn into JSON object for details page
 
   const [isVisible, setIsVisible] = useState(false);
+  const [hasRequestedItem, setHasRequestedItem] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const token = useAuth();
+  const { userData } = useUserStore();
+  // const { hasRequestedItem, setHasRequestedItem } = useSingleItemStore();
+
+  // Will run whenever user wants to see ItemDetails
+  useEffect(() => {
+    const checkPurchaseRequest = async (authToken: string | null) => {
+      try {
+        setIsLoading(true);
+        const cleanToken = authToken?.trim();
+        const response = await axios.get(`${BASE_URL}/api/requests/sent/`, {
+          headers: {
+            Authorization: `Bearer ${cleanToken}`,
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        });
+
+        // Check if any of the sent requests match this item
+        const hasRequested = response.data.some(
+          (request: any) => request.listing.id === item.id && request.is_active
+        );
+        setHasRequestedItem(hasRequested);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error checking purchase request:", error);
+        setIsLoading(false);
+      }
+    };
+    checkPurchaseRequest(token.authToken);
+  }, [item.id, token, hasRequestedItem]);
 
   const openModal = () => {
     setIsVisible(true);
@@ -28,6 +67,31 @@ const ItemDetails = () => {
   const closeModal = () => {
     setIsVisible(false);
   };
+
+  const handlePurchaseRequest = async (authToken: string | null) => {
+    try {
+      const cleanToken = authToken?.trim();
+      const response = await axios.post(
+        `${BASE_URL}/api/items/${item.id}/request_purchase/`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${cleanToken}`,
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        }
+      );
+      setHasRequestedItem(true); //update state of item for user
+      openModal(); // show the user that the request was sent.
+    } catch (error) {
+      console.error("Error requesting purchase:", error);
+      alert("Failed to send purchase request. Please try again.");
+    }
+  };
+
+  // Find out if the user is the owner of the item
+  const isOwner = userData && item.seller === userData.id;
 
   return (
     <>
@@ -62,15 +126,32 @@ const ItemDetails = () => {
         <Text style={styles.title}>Seller: {item.seller_name}</Text>
         <Text style={styles.title}>Date Posted: {item.created_at}</Text>
         <Text style={styles.title}>Category: {item.category_name}</Text>
-        {source !== "myItems" && (
-          <TouchableOpacity
-            style={{ backgroundColor: "blue", padding: 15, borderRadius: 5 }}
-            onPress={openModal}
-          >
-            <Text style={{ color: "white", fontSize: 16 }}>
-              Request Puchase
-            </Text>
-          </TouchableOpacity>
+        {isLoading ? (
+          <ActivityIndicator
+            style={{ marginTop: 20 }}
+            size="small"
+            color="blue"
+          />
+        ) : (
+          source !== "myItems" &&
+          !isOwner && (
+            <TouchableOpacity
+              style={{
+                backgroundColor: hasRequestedItem ? "gray" : "blue",
+                padding: 15,
+                borderRadius: 5,
+                marginTop: 20,
+                width: "100%",
+                alignItems: "center",
+              }}
+              onPress={() => handlePurchaseRequest(token.authToken)}
+              disabled={hasRequestedItem}
+            >
+              <Text style={{ color: "white", fontSize: 16 }}>
+                {hasRequestedItem ? "Purchase Requested" : "Request Puchase"}
+              </Text>
+            </TouchableOpacity>
+          )
         )}
       </View>
     </>

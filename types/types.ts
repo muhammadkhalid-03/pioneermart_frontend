@@ -10,6 +10,19 @@ export interface ItemType {
   category_name: string;
   seller: number;
   is_favorited: boolean; // this is a separate field on the frontend for each user
+  purchase_request_count: number;
+  purchase_requesters?: Array<{ id: number; username: string }>;
+}
+
+export interface PurchaseRequest {
+  id: number;
+  listing: ItemType;
+  requester: number;
+  // seller: number;
+  requester_name: string;
+  // status: "pending" | "accepted" | "rejected" | "cancelled";
+  created_at: string;
+  is_active: boolean;
 }
 
 export interface CategoryType {
